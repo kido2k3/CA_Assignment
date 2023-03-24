@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 03/22/2023 08:07:00 PM
+// Create Date: 03/24/2023 01:37:16 PM
 // Design Name: 
-// Module Name: IMEM
+// Module Name: SignedExtended
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,15 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IMEM(
-input [7:0] IMEM_PC,
-//input clk,
-output [31:0] IMEM_instruction
+module SignedExtended
+    #(  parameter IN_WIDTH = 16,
+        parameter OUT_WIDTH = 32)(
+        input [IN_WIDTH-1:0] in,
+        output [OUT_WIDTH-1:0] out
     );
-    reg [31:0] ins [0:127];
-    initial begin
-        //$readmemb("input.mem", ins);
-        $readmemh("input.mem", ins);
-    end
-    assign IMEM_instruction = ins[IMEM_PC>>2];
+   
+    assign out = {{(OUT_WIDTH-IN_WIDTH){in[IN_WIDTH-1]}},in[IN_WIDTH-1:0]};
 endmodule
