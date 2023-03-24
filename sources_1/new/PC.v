@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 03/22/2023 08:07:00 PM
+// Create Date: 03/24/2023 02:27:45 PM
 // Design Name: 
-// Module Name: IMEM
+// Module Name: PC
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,15 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IMEM(
-input [7:0] IMEM_PC,
-//input clk,
-output [31:0] IMEM_instruction
+module PC(
+    input clk,
+    input [7:0] PC_in,
+    output reg [7:0] PC_out
     );
-    reg [31:0] ins [0:127];
-    initial begin
-        //$readmemb("input.mem", ins);
-        $readmemh("input.mem", ins);
-    end
-    assign IMEM_instruction = ins[IMEM_PC>>2];
+    initial PC_out = 8'd0;
+    always@(posedge clk)
+        PC_out <= PC_in;
 endmodule
