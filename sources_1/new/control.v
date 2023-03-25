@@ -24,7 +24,9 @@ module control(
     input [5 :0] opcode, 
     input [4 :0] rd,
     input [4 :0] rt,
-    output [10:0] control_signal);
+    output [10:0] control_signal
+    //output reg [10:0] out
+    );
     reg [10:0] out;
     always@(*)
     begin
@@ -38,6 +40,8 @@ module control(
             end
             else if(opcode[1:0] == 2) // Jump
                 out[10:0] = 11'b10000010000;
+            else
+                out[10:0] = 11'b00000001000;
         end
         else if(opcode[5:2]==4'b1000)// Load
         begin
@@ -46,12 +50,12 @@ module control(
             if(opcode[1:0]==2'b11) // word
             begin
                 out[5:4] = 2'b00;
-                out[3] = !rd;
+                out[3] = !rt;
             end
             else if(opcode[1:0]==2'b01) //half
             begin
                 out[5:4] = 2'b11;
-                out[3] = !rd;
+                out[3] = !rt;
             end
             else
             begin
@@ -66,12 +70,12 @@ module control(
             if(opcode[1:0]==2'b11)//word
             begin
                 out[5:4] = 2'b00;
-                out[3] = !rd;
+                out[3] = !rt;
             end
             else if(opcode[1:0]==2'b01)//half
             begin
                 out[5:4] = 2'b11;
-                out[3] = !rd;
+                out[3] = !rt;
             end
             else
             begin
@@ -85,7 +89,4 @@ module control(
             out[10:0] = 11'b00000001000;
     end
     assign control_signal = out;
-    /*assign control_signal[10:4] = (!opcode[5:2] && !opcode[1:0])? 7'b0000010: ;
-       
-        assign control_signal[2:0] = */
 endmodule
