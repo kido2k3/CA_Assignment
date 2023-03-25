@@ -24,8 +24,8 @@ module control(
     input [5 :0] opcode, 
     input [4 :0] rd,
     input [4 :0] rt,
-    output [10:0] control_signal
-    //output reg [10:0] out
+    output [10:0] control_signal,
+    output IsAddi
     );
     reg [10:0] out;
     always@(*)
@@ -70,12 +70,12 @@ module control(
             if(opcode[1:0]==2'b11)//word
             begin
                 out[5:4] = 2'b00;
-                out[3] = !rt;
+                out[3] = 0;
             end
             else if(opcode[1:0]==2'b01)//half
             begin
                 out[5:4] = 2'b11;
-                out[3] = !rt;
+                out[3] = 0;
             end
             else
             begin
@@ -85,8 +85,15 @@ module control(
         end
         else if(opcode==6'b000100) // beq
             out[10:0] = 11'b01000010000;
+        else if(opcode==6'b001000) // addi
+            begin
+            out[10: 4] = 7'b0000010;
+            out[2:0] = 3'b110;
+            out[3] = !rt;
+            end
         else
             out[10:0] = 11'b00000001000;
     end
+    assign IsAddi = (opcode==6'b001000);
     assign control_signal = out;
 endmodule

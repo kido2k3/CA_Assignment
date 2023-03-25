@@ -21,9 +21,9 @@
 
 
 module REG(
-input [5:0] REG_address1,
-input [5:0] REG_address2, 
-input [5:0] REG_address_wr, 
+input [4:0] REG_address1,
+input [4:0] REG_address2, 
+input [4:0] REG_address_wr, 
 input REG_write_1, 
 input [31:0] REG_data_wb_in1, 
 //input clk,
@@ -35,11 +35,11 @@ output[31:0] REG_data_out2
     assign REG_data_out1 = register[REG_address1];
     assign REG_data_out2 = register[REG_address2];
     //always @(posedge clk)
-    always @(*)
+    always @(posedge REG_write_1)
     begin 
     if(REG_write_1)
-        #10 register[REG_address_wr] = REG_data_wb_in1;
+        register[REG_address_wr] = REG_data_wb_in1;
     else
-        #10 register[REG_address_wr] = register[REG_address_wr];
+        register[REG_address_wr] = register[REG_address_wr];
     end
 endmodule

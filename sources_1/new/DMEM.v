@@ -28,12 +28,17 @@ input DMEM_mem_read,
 //input clk,
 output[31:0] DMEM_data_out
     );
+    
     reg [31:0] data [0:255];
+    initial begin
+        //$readmemb("input.mem", ins);
+        $readmemh("input_data.txt", data);
+    end
     wire [7:0] address;
     assign address = DMEM_address[7:0];
     assign DMEM_data_out = (DMEM_mem_read)?data[address]:32'b0;
     //always @(posedge clk)
-    always@(*)
+    always@(posedge DMEM_mem_write)
         begin
             if(DMEM_mem_write)
                 data[address] = DMEM_data_in;

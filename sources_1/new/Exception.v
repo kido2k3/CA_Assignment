@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 03/22/2023 08:07:00 PM
+// Create Date: 03/25/2023 09:27:42 AM
 // Design Name: 
-// Module Name: IMEM
+// Module Name: Exception
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,15 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IMEM(
-input [7:0] IMEM_PC,
-//input clk,
-output [31:0] IMEM_instruction
+module Exception(
+    input FromControl,
+    input FromALUControl,
+    input FromALU2,
+    input FromALU3,
+    input FromALU6,
+    output out
     );
-    reg [31:0] ins [0:63];
-    initial begin
-        //$readmemb("input.mem", ins);
-        $readmemh("input_text.txt", ins);
-    end
-    assign IMEM_instruction = ins[IMEM_PC>>2];
+    assign out =    FromControl ||
+                    FromALUControl ||
+                    FromALU2 ||
+                    FromALU3 ||
+                    FromALU6;
 endmodule
