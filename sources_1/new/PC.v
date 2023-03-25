@@ -23,9 +23,11 @@
 module PC(
     input clk,
     input [7:0] PC_in,
-    output reg [7:0] PC_out
+    output[7:0] PC_out
     );
-    initial PC_out = 8'd0;
+    reg [7:0] out;
+    assign PC_out = out;
+    initial out = 8'd0;
     always@(posedge clk)
-        PC_out <= PC_in;
+        out <= PC_in;
 endmodule

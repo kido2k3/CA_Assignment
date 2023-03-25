@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 03/24/2023 02:23:23 PM
+// Create Date: 03/25/2023 09:27:42 AM
 // Design Name: 
-// Module Name: ex26to28
+// Module Name: Exception
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,9 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Ex4to6(
-    input [4:0] in,
-    output [6:0] out
+module Exception(
+    input FromControl,
+    input FromALUControl,
+    input FromALU2,
+    input FromALU3,
+    input FromALU6,
+    output out
     );
-    assign out = {in, {2{1'b0}}};
+    assign out =    FromControl ||
+                    FromALUControl ||
+                    FromALU2 ||
+                    FromALU3 ||
+                    FromALU6;
 endmodule

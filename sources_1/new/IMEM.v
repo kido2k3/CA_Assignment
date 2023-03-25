@@ -28,7 +28,7 @@ output [31:0] IMEM_instruction
     reg [31:0] ins [0:127];
     initial begin
         //$readmemb("input.mem", ins);
-        $readmemh("input.mem", ins);
+        $readmemh("input_text.mem", ins);
     end
     assign IMEM_instruction = ins[IMEM_PC>>2];
 endmodule
