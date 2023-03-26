@@ -32,11 +32,7 @@ output[31:0] DMEM_data_out
     reg [31:0] data [0:255];
     initial begin
         //$readmemb("input.mem", ins);
-<<<<<<< HEAD
         $readmemh("input_data.txt", data);
-=======
-        $readmemh("input_data.mem", data);
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
     end
     wire [7:0] address;
     assign address = DMEM_address[7:0];

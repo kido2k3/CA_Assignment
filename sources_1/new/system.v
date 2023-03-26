@@ -45,11 +45,7 @@ output[26:0] SYS_leds
     wire [31:0] DMEM_data_out;
     wire [31:0] Mem2Reg;
     wire [7:0] Branch;
-<<<<<<< HEAD
     wire [5:0] Ex4to6_out;
-=======
-    wire [7:0] Ex4to6_out;
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
     wire [7:0] PCPlus4;
     wire Exception_out;
     wire MemRead;
@@ -58,11 +54,7 @@ output[26:0] SYS_leds
     wire [7:0] PC_in_real;
     reg [7:0] EPC;
     initial EPC=0;
-<<<<<<< HEAD
     always @(posedge Exception_out)
-=======
-    always @(*)
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
         begin
         EPC = (Exception_out) ? PC_out:EPC;
         end
@@ -70,23 +62,16 @@ output[26:0] SYS_leds
     assign MemWrite = (Exception_out)?0:control_signal[7];
     assign MemtoReg = (Exception_out)?0:control_signal[6];
     assign PCPlus4 = PC_out + 4;
-<<<<<<< HEAD
-=======
-    assign PC_in =(control_signal[10])? {PCPlus4[7:6], Ex4to6_out} :Branch;
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
+
     assign Branch = (status_out[7] && control_signal[9])? 
         (PC_out + 4) + (Out_SignedExtended[7:0]<<2) : 
         PC_out + 4;
     assign Mem2Reg = (MemtoReg)? DMEM_data_out : result_out;
     assign ALUSRC = (control_signal[2])?Out_SignedExtended[31:0]:REG_data_out2[31:0];
     assign RDst = (control_signal[0])? IMEM_ins[15:11]:IMEM_ins[20:16];
-<<<<<<< HEAD
+
     assign PC_in = (control_signal[10])?{PCPlus4[7:6], Ex4to6_out[5:0]}:Branch;
-    
-=======
-    
-    
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
+
     PC pc1 (.clk(SYS_clk), .PC_in(PC_in_real), .PC_out(PC_out));
     IMEM imem (.IMEM_PC(PC_out), .IMEM_instruction(IMEM_ins));
     REG Reg1 (.REG_address1( IMEM_ins[25:21]), .REG_address2(IMEM_ins[20:16]),
@@ -104,12 +89,9 @@ output[26:0] SYS_leds
     Exception ex1(control_signal[3], ex,status_out[2],status_out[3],status_out[6],Exception_out);
     
     assign PC_in_real = (SYS_reset)?0:
-<<<<<<< HEAD
                         (SYS_load)?SYS_pc_val:
                         PC_in;
-=======
-                        (SYS_load)?SYS_pc_val:PC_in; 
->>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
+
     assign SYS_leds =   (SYS_reset)?0:
                         (!SYS_output_sel)?IMEM_ins:
                         (SYS_output_sel==1)?REG_data_out:
