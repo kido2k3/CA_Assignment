@@ -21,8 +21,13 @@
 
 
 module Ex4to6(
+<<<<<<< HEAD
     input [3:0] in,
     output [5:0] out
+=======
+    input [4:0] in,
+    output [6:0] out
+>>>>>>> ae4e827ea83e695fdba129fee93925c2b852a390
     );
     assign out = {in, {2{1'b0}}};
 endmodule
