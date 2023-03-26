@@ -1,0 +1,266 @@
+#-----------------------------------------------------------
+# Vivado v2018.2 (64-bit)
+# SW Build 2258646 on Thu Jun 14 20:03:12 MDT 2018
+# IP Build 2256618 on Thu Jun 14 22:10:49 MDT 2018
+# Start of session at: Sun Mar 26 10:05:08 2023
+# Process ID: 4000
+# Current directory: D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/SYSTEM
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent8812 D:\DaiHoc\HK222\KTMT\BTL\SYSTEM\SYSTEM\SYSTEM.xpr
+# Log file: D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/SYSTEM/vivado.log
+# Journal file: D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/SYSTEM\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/SYSTEM/SYSTEM.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/DaiHoc/HK222/KTMT/Vivado/2018.2/data/ip'.
+update_compile_order -fileset sources_1
+synth_design -rtl -name rtl_1
+Command: synth_design -rtl -name rtl_1
+Starting synth_design
+Using part: xc7z020clg484-1
+Top: system
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 854.336 ; gain = 70.109
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'system' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v:5]
+INFO: [Synth 8-6157] synthesizing module 'PC' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'PC' (1#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v:3]
+INFO: [Synth 8-6157] synthesizing module 'IMEM' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:23]
+INFO: [Synth 8-3876] $readmem data file 'input_text.txt' is read successfully [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:31]
+INFO: [Synth 8-6155] done synthesizing module 'IMEM' (2#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:23]
+INFO: [Synth 8-6157] synthesizing module 'REG' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'REG' (3#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v:23]
+INFO: [Synth 8-6157] synthesizing module 'control' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'control' (4#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v:23]
+INFO: [Synth 8-6157] synthesizing module 'SignedExtended' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v:23]
+	Parameter IN_WIDTH bound to: 16 - type: integer 
+	Parameter OUT_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'SignedExtended' (5#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v:23]
+INFO: [Synth 8-6157] synthesizing module 'ALU_control' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'ALU_control' (6#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v:23]
+INFO: [Synth 8-6157] synthesizing module 'ALU' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'ALU' (7#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v:23]
+INFO: [Synth 8-6157] synthesizing module 'DMEM' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:23]
+INFO: [Synth 8-3876] $readmem data file 'input_data.txt' is read successfully [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:35]
+INFO: [Synth 8-6155] done synthesizing module 'DMEM' (8#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:23]
+INFO: [Synth 8-6157] synthesizing module 'Ex4to6' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'Ex4to6' (9#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v:23]
+INFO: [Synth 8-6157] synthesizing module 'Exception' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'Exception' (10#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'system' (11#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v:5]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[31]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[30]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[29]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[28]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[27]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[26]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[25]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[24]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[23]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[22]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[21]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[20]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[19]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[18]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[17]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[16]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[15]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[14]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[13]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[12]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[11]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[10]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[9]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[8]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:03 . Memory (MB): peak = 894.207 ; gain = 109.980
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 894.207 ; gain = 109.980
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 894.207 ; gain = 109.980
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:17 ; elapsed = 00:00:14 . Memory (MB): peak = 1283.738 ; gain = 499.512
+28 Infos, 24 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:18 ; elapsed = 00:00:14 . Memory (MB): peak = 1283.738 ; gain = 499.512
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v] -no_script -reset -force -quiet
+remove_files  D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v
+close_design
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v] -no_script -reset -force -quiet
+remove_files  {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v}
+add_files -norecurse {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v}
+update_compile_order -fileset sources_1
+synth_design -rtl -name rtl_1
+Command: synth_design -rtl -name rtl_1
+Starting synth_design
+Using part: xc7z020clg484-1
+Top: system
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 1283.738 ; gain = 0.000
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'system' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v:5]
+INFO: [Synth 8-6157] synthesizing module 'PC' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'PC' (1#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v:3]
+INFO: [Synth 8-6157] synthesizing module 'IMEM' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:23]
+INFO: [Synth 8-3876] $readmem data file 'input_text.txt' is read successfully [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:31]
+INFO: [Synth 8-6155] done synthesizing module 'IMEM' (2#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v:23]
+INFO: [Synth 8-6157] synthesizing module 'REG' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'REG' (3#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v:23]
+INFO: [Synth 8-6157] synthesizing module 'control' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'control' (4#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v:23]
+INFO: [Synth 8-6157] synthesizing module 'SignedExtended' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v:23]
+	Parameter IN_WIDTH bound to: 16 - type: integer 
+	Parameter OUT_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'SignedExtended' (5#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v:23]
+INFO: [Synth 8-6157] synthesizing module 'ALU_control' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'ALU_control' (6#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v:23]
+INFO: [Synth 8-6157] synthesizing module 'ALU' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'ALU' (7#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v:23]
+INFO: [Synth 8-6157] synthesizing module 'DMEM' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:23]
+INFO: [Synth 8-3876] $readmem data file 'input_data.txt' is read successfully [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:35]
+INFO: [Synth 8-6155] done synthesizing module 'DMEM' (8#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v:23]
+INFO: [Synth 8-6157] synthesizing module 'Ex4to6' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'Ex4to6' (9#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v:23]
+INFO: [Synth 8-6157] synthesizing module 'Exception' [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'Exception' (10#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v:23]
+INFO: [Synth 8-6155] done synthesizing module 'system' (11#1) [D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v:5]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[31]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[30]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[29]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[28]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[27]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[26]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[25]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[24]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[23]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[22]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[21]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[20]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[19]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[18]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[17]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[16]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[15]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[14]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[13]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[12]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[11]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[10]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[9]
+WARNING: [Synth 8-3331] design DMEM has unconnected port DMEM_address[8]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:03 . Memory (MB): peak = 1283.738 ; gain = 0.000
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1283.738 ; gain = 0.000
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1283.738 ; gain = 0.000
+---------------------------------------------------------------------------------
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:05 . Memory (MB): peak = 1344.055 ; gain = 60.316
+27 Infos, 24 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:08 ; elapsed = 00:00:05 . Memory (MB): peak = 1344.055 ; gain = 60.316
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v] -no_script -reset -force -quiet
+remove_files  D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v
+update_compile_order -fileset sources_1
+close_design
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v] -no_script -reset -force -quiet
+remove_files  {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v}
+add_files -norecurse {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v}
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v] -no_script -reset -force -quiet
+remove_files  {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v}
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v] -no_script -reset -force -quiet
+remove_files  D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v
+add_files {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v}
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v] -no_script -reset -force -quiet
+remove_files  D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v] -no_script -reset -force -quiet
+remove_files  {D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v}
+exit
+INFO: [Common 17-206] Exiting Vivado at Sun Mar 26 10:17:15 2023...

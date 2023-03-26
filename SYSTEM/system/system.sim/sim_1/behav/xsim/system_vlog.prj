@@ -1,0 +1,19 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../../CA_Assignment/sources_1/new/ALU.v" \
+"../../../../../CA_Assignment/sources_1/new/ALU_control.v" \
+"../../../../../CA_Assignment/sources_1/new/DMEM.v" \
+"../../../../../CA_Assignment/sources_1/new/Exception.v" \
+"../../../../../CA_Assignment/sources_1/new/IMEM.v" \
+"../../../../../CA_Assignment/sources_1/new/PC.v" \
+"../../../../../CA_Assignment/sources_1/new/REG.v" \
+"../../../../../CA_Assignment/sources_1/new/SignedExtended.v" \
+"../../../../../CA_Assignment/sources_1/new/control.v" \
+"../../../../../CA_Assignment/sources_1/new/ex26to28.v" \
+"../../../../../CA_Assignment/sources_1/new/system.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

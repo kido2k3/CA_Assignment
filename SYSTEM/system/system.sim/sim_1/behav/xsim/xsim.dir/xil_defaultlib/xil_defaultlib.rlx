@@ -1,0 +1,17 @@
+0.6
+2018.2
+Jun 14 2018
+20:41:02
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU.v,1679835843,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v,,ALU,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ALU_control.v,1679835848,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v,,ALU_control,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/DMEM.v,1679837535,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v,,DMEM,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/Exception.v,1679800395,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v,,Exception,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/IMEM.v,1679802740,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v,,IMEM,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/PC.v,1679800395,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v,,PC,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/REG.v,1679837331,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v,,REG,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/SignedExtended.v,1679800395,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v,,SignedExtended,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/control.v,1679800395,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v,,control,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/ex26to28.v,1679746391,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v,,Ex4to6,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/CA_Assignment/sources_1/new/system.v,1679797981,verilog,,D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/system/SYSTEM.srcs/sim_1/new/SYSTEM_tb.v,,system,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/system/SYSTEM.srcs/sim_1/new/SYSTEM_tb.v,1679837207,verilog,,,,SYSTEM_tb,,,,,,,,
+D:/DaiHoc/HK222/KTMT/BTL/SYSTEM/system/system.sim/sim_1/behav/xsim/glbl.v,1529022455,verilog,,,,glbl,,,,,,,,
