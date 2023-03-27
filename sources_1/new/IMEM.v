@@ -26,10 +26,15 @@ input [7:0] IMEM_PC,
 output [31:0] IMEM_instruction
     );
     reg [31:0] ins [0:63];
+    integer i;
     initial begin
         //$readmemb("input.mem", ins);
-        $readmemh("input_text.txt", ins);
-
+        for(i=0; i<64 ;i=i+1)
+        begin
+            ins[i] = 0;
+        end
+        $readmemh("C:/Users/HP/Desktop/CA_BTL/project_t/CA_Assignment/SYSTEM/CA_Assignment/sources_1/new/input_text.txt", ins);
+        
     end
     assign IMEM_instruction = ins[IMEM_PC>>2];
 endmodule
