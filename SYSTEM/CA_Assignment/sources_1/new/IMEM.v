@@ -33,7 +33,7 @@ output [31:0] IMEM_instruction
         begin
             ins[i] = 0;
         end
-        $readmemh("D:\\DaiHoc\\HK222\\KTMT\\BTL\\SYSTEM\\CA_Assignment\\sources_1\\new\\input_text.txt", ins);
+        $readmemh("C:/Users/HP/Desktop/CA_BTL/project_t/CA_Assignment/SYSTEM/CA_Assignment/sources_1/new/input_text.txt", ins);
         
     end
     assign IMEM_instruction = ins[IMEM_PC>>2];

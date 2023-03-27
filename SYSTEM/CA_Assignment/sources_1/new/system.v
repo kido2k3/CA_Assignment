@@ -10,10 +10,12 @@ output[26:0] SYS_leds,
 output[7:0] PC_out_t,
 output [31:0] IMEM_ins_t,
 output[31:0] REG_data_out1_t,
+output[31:0] REG_data_out2_t,
 output [10:0] control_signal_t,
 output signed [31:0] result_out_t,
 output [7:0] status_out_t,
-output[31:0] DMEM_data_out_t
+output[31:0] DMEM_data_out_t,
+output[31:0] Mem2Reg_t
     );
     
     wire [7:0] PC_in;
@@ -46,10 +48,12 @@ output[31:0] DMEM_data_out_t
     assign PC_out_t = PC_out;
     assign IMEM_ins_t = IMEM_ins;
     assign REG_data_out1_t = REG_data_out;
+    assign REG_data_out2_t = REG_data_out2;
     assign control_signal_t = control_signal;
     assign result_out_t = result_out;
     assign status_out_t = status_out;
     assign DMEM_data_out_t = DMEM_data_out;
+    assign Mem2Reg_t = Mem2Reg;
     
     initial EPC=0;
     always @(posedge Exception_out)
@@ -75,6 +79,7 @@ output[31:0] DMEM_data_out_t
     REG Reg1 (.REG_address1( IMEM_ins[25:21]), .REG_address2(IMEM_ins[20:16]),
                             .REG_address_wr(RDst),.REG_write_1(control_signal[1]),
                             .REG_data_wb_in1(Mem2Reg),
+                            .clk(SYS_clk),
                             .REG_data_out1(REG_data_out[31:0]),
                             .REG_data_out2(REG_data_out2[31:0])
                             );
@@ -82,7 +87,7 @@ output[31:0] DMEM_data_out_t
     SignedExtended SE1 (IMEM_ins[15:0], Out_SignedExtended[31:0]);
     ALU_control AC1(control_signal[5:4], IMEM_ins[5:0], IsAddi, control_out[3:0], ex);
     ALU alu1 (control_out[3:0], REG_data_out[31:0], ALUSRC[31:0], result_out[31:0], status_out[7:0]);
-    DMEM d1(result_out[31:0], REG_data_out2[31:0], MemWrite, MemRead, DMEM_data_out[31:0]);
+    DMEM d1(result_out[31:0], REG_data_out2[31:0], MemWrite, MemRead, SYS_clk, DMEM_data_out[31:0]);
     Ex4to6 e1(IMEM_ins[3:0], Ex4to6_out[5:0]);
     Exception ex1(control_signal[3], ex,status_out[2],status_out[3],status_out[6],Exception_out);
     

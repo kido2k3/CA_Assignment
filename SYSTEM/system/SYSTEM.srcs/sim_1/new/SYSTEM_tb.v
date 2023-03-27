@@ -11,13 +11,15 @@ integer i;
 wire[7:0] PC_out_t;
 wire [31:0] IMEM_ins_t;
 wire[31:0] REG_data_out1_t;
+wire[31:0] REG_data_out2_t;
 wire [10:0] control_signal_t;
 wire signed [31:0] result_out_t;
 wire [7:0] status_out_t;
 wire[31:0] DMEM_data_out_t;
+wire[31:0] Mem2Reg_t;
 
 system sy(SYS_clk,SYS_reset,SYS_load,SYS_pc_val,SYS_output_sel,SYS_leds,
-          PC_out_t, IMEM_ins_t, REG_data_out1_t, control_signal_t,result_out_t, status_out_t, DMEM_data_out_t);
+          PC_out_t, IMEM_ins_t, REG_data_out1_t,REG_data_out2_t, control_signal_t,result_out_t, status_out_t, DMEM_data_out_t, Mem2Reg_t);
 initial
     begin
      SYS_reset = 0;
