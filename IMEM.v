@@ -38,3 +38,9 @@
 //     end
 //     assign IMEM_instruction = ins[IMEM_PC>>2];
 // endmodule
+module IMEM(
+    input [31:0] IMEM_PC,
+    output [31:0] IMEM_instruction
+);
+
+endmodule
