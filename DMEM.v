@@ -35,7 +35,7 @@ output[31:0] DMEM_data_out
         
         for(i = 0; i<256; i=i+1)
             data[i] = 0;
-        $readmemh("C:/Users/HP/Desktop/CA_BTL/project_t/CA_Assignment/SYSTEM/CA_Assignment/sources_1/new/input_data.txt", data);
+        $readmemh("./input_data.txt", data);
     end
     wire [7:0] address;
     assign address = DMEM_address[7:0];

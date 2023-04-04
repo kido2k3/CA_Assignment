@@ -7,11 +7,11 @@ input SYS_load,
 input [7:0] SYS_pc_val,
 input [7 :0] SYS_output_sel,
 output[26:0] SYS_leds
-    );
+);
     
     wire [7:0] PC_in;
     wire [7:0] PC_out;
-   
+    
     wire [31:0] IMEM_ins;
     wire [4:0]RDst;
     wire [31:0] REG_data_out;

@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 03/24/2023 02:23:23 PM
+// Create Date: 03/22/2023 08:07:00 PM
 // Design Name: 
-// Module Name: ex26to28
+// Module Name: IMEM
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,10 +20,21 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Ex4to6(
-    input [3:0] in,
-    output [5:0] out
-
+module IMEM(
+input [7:0] IMEM_PC,
+//input clk,
+output [31:0] IMEM_instruction
     );
-    assign out = {in, {2{1'b0}}};
+    reg [31:0] ins [0:63];
+    integer i;
+    initial begin
+        //$readmemb("input.mem", ins);
+        for(i=0; i<64 ;i=i+1)
+        begin
+            ins[i] = 0;
+        end
+        $readmemh("./input_text.txt", ins);
+        
+    end
+    assign IMEM_instruction = ins[IMEM_PC>>2];
 endmodule
