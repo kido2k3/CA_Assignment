@@ -20,14 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module PC(
-    input clk,
-    input [7:0] PC_in,
-    output[7:0] PC_out
-    );
-    reg [7:0] out;
-    assign PC_out = out;
-    initial out = 8'd0;
-    always@(posedge clk)
-        out <= PC_in;
-endmodule
+// module PC(
+//     input clk,
+//     input [7:0] PC_in,
+//     output[7:0] PC_out
+//     );
+//     reg [7:0] out;
+//     assign PC_out = out;
+//     initial out = 8'd0;
+//     always@(posedge clk)
+//         out <= PC_in;
+// endmodule
