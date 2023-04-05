@@ -3,7 +3,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ALU_control(input [1:0] ALUop, input [5:0] func_in,input addi ,output [3:0] control_out, output ex);
+module ALU_control(
+    input [1:0] ALUop, input [5:0] func_in,input addi ,
+    output [3:0] control_out, output ex
+);
     reg [3:0] ALU_control_out;
     assign control_out = ALU_control_out;
     always @(*)
@@ -38,4 +41,12 @@ module ALU_control(input [1:0] ALUop, input [5:0] func_in,input addi ,output [3:
            end  
         end
        assign ex = (ALU_control_out == 3);
+endmodule
+
+module ALU_control(
+    input [1:0] ALUop,
+    input [5:0] funct,
+    output [3:0] control_out
+);
+
 endmodule
