@@ -93,15 +93,14 @@ module system(
             PC <= 32'b0; //các output trở về zero nữa
         end
         else
-            PC <= PC + 4;
+            PC <= (status_out[7] && branch_signal) ? PC + 4 + (Out_SignedExtended[7:0]<<2) :
+                  (jump_signal)                    ? {PC[31:28], instruction[25:0] ,2'b00} : PC + 4;
     end
+    // assign Branch = (status_out[7] && branch_signal) ?  // khi kết quả là 0, đây là beq, đây là địa chỉ nhảy đến
+    //                 (PC + 4) + (Out_SignedExtended[7:0]<<2) : PC + 4;
 
-
-    assign Branch = (status_out[7] && branch_signal)        ? 
-                    (PC + 4) + (Out_SignedExtended[7:0]<<2) : 
-                    PC + 4;
     
-    Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]);
+    // Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]); //mở rộng dấu để handle lệnh jump
 
 
     assign SYS_leds =   (SYS_reset)           ? 0                     :
