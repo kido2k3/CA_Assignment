@@ -56,6 +56,7 @@ module system(
                         .REG_data_out2  (REG_data_out2[31:0]) //giá trị rt đọc được để đưa vào tính toán
                      );
 
+    SignedExtended SE1 (instruction[15:0], Out_SignedExtended[31:0]);
 
     control     crl1 (.opcode          (instruction[31:26]),
                       .control_signal  (control_signal), //tín hiệ output ra
@@ -66,9 +67,10 @@ module system(
                      .control_out (control_out[3:0]),
                     );
 
+    assign ALUSRC[31:0] = (ALUsrc_signal)?Out_SignedExtended[31:0]:REG_data_out2[31:0]; //quyết định chọn trường nhập vào ALU tùy theo R hay I
     ALU         alu1 (.control      (control_out[3:0]),
-                      .a            (REG_data_out[31:0]), 
-                      .b            (ALUSRC[31:0]),
+                      .a            (REG_data_out[31:0]), //rs in
+                      .b            (ALUSRC[31:0]),       //rt or imm
                       .result_out   (result_out[31:0]),
                       .status_out   (status_out[7:0]) //trạng thái của phép tín htrong alu
                      );
@@ -80,6 +82,8 @@ module system(
                     .clk            (SYS_clk), 
                     .DMEM_data_out  (DMEM_data_out[31:0])
                     );
+
+    assign Mem2Reg = (Mem2Reg_signal)? DMEM_data_out : result_out; //quyết định WB
 
     always @(negedge clk , posedge SYS_reset)
     begin
@@ -96,12 +100,9 @@ module system(
                     (PC + 4) + (Out_SignedExtended[7:0]<<2) : 
                     PC + 4;
 
-    assign Mem2Reg = (Mem2Reg_signal)? DMEM_data_out : result_out;
-    assign ALUSRC = (ALUsrc_signal)?Out_SignedExtended[31:0]:REG_data_out2[31:0];
     assign RDst = (RegDst_signal)? instruction[15:11]:instruction[20:16];
 
 
-    SignedExtended SE1 (instruction[15:0], Out_SignedExtended[31:0]);
     
     Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]);
 
