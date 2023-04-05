@@ -56,23 +56,11 @@ module system(
                         .REG_data_out2  (REG_data_out2[31:0]) //giá trị rt đọc được để đưa vào tính toán
                      );
 
-    // control     crl1 ( .opcode          (instruction[31:26]),
-    //                    .rd              (instruction[15:11]), 
-    //                    .rt              (instruction[20:16]),
-    //                    .control_signal  (control_signal), //tín hiệ output ra
-    //                    .IsAddi          (IsAddi)
-    //                    );
+
     control     crl1 (.opcode          (instruction[31:26]),
                       .control_signal  (control_signal), //tín hiệ output ra
                      );
 
-    //OLD
-    // ALU_control AC1 (.ALUop       (control_signal[5:4]), //input
-    //                  .func_in     (instruction[5:0]),    //input
-    //                  .addi        (IsAddi), 
-    //                  .control_out (control_out[3:0]),
-    //                  .ex          (ex)
-    //                 );
     ALU_control AC1 (.ALUop       (control_signal[5:4]), //input
                      .funct       (instruction[5:0]),    //input
                      .control_out (control_out[3:0]),
@@ -102,9 +90,6 @@ module system(
         else
             PC <= PC + 4;
     end
-
-
-
 
 
     assign Branch = (status_out[7] && branch_signal)        ? 
