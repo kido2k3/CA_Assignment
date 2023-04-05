@@ -28,7 +28,6 @@ module system(
     wire [31:0] Mem2Reg;
     wire [7:0] Branch;
     wire [5:0] Ex4to6_out;
-    wire Exception_out;
     wire MemRead;
     wire MemWrite;
     wire MemtoReg;
@@ -86,12 +85,10 @@ module system(
                       .status_out   (status_out[7:0]) //trạng thái của phép tín htrong alu
                      );
 
-    assign MemRead = (Exception_out)?0:MemRead_signal;
-    assign MemWrite = (Exception_out)?0:MemWrite_signal;
     DMEM        d1( .DMEM_address   (result_out[31:0]),
                     .DMEM_data_in   (REG_data_out2[31:0]), 
-                    .DMEM_mem_write (MemWrite), //tín hiệu điều khiển cho phép ghi
-                    .DMEM_mem_read  (MemRead),  //tín hiệu điều khiển cho phép đọc
+                    .DMEM_mem_write (MemWrite_signal), //tín hiệu điều khiển cho phép ghi
+                    .DMEM_mem_read  (MemRead_signal),  //tín hiệu điều khiển cho phép đọc
                     .clk            (SYS_clk), 
                     .DMEM_data_out  (DMEM_data_out[31:0])
                     );
@@ -109,13 +106,12 @@ module system(
 
 
 
-    assign MemtoReg = (Exception_out)?0:Mem2Reg_signal;
 
     assign Branch = (status_out[7] && branch_signal)        ? 
                     (PC + 4) + (Out_SignedExtended[7:0]<<2) : 
                     PC + 4;
 
-    assign Mem2Reg = (MemtoReg)? DMEM_data_out : result_out;
+    assign Mem2Reg = (Mem2Reg_signal)? DMEM_data_out : result_out;
     assign ALUSRC = (ALUsrc_signal)?Out_SignedExtended[31:0]:REG_data_out2[31:0];
     assign RDst = (RegDst_signal)? instruction[15:11]:instruction[20:16];
 
@@ -123,7 +119,6 @@ module system(
     SignedExtended SE1 (instruction[15:0], Out_SignedExtended[31:0]);
     
     Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]);
-    Exception ex1(exception_signal, ex,status_out[2],status_out[3],status_out[6],Exception_out);
 
 
     assign SYS_leds =   (SYS_reset)           ? 0                     :
@@ -138,12 +133,8 @@ module system(
 endmodule
 
 
-    initial EPC=0; //exception, chưa xử lý
 
-    always @(posedge Exception_out)
-    begin
-        EPC = (Exception_out) ? PC : EPC;
-    end
+
 
     // wire [7:0] PC_in;
     // wire [7:0] PC_out;
@@ -159,3 +150,16 @@ endmodule
     // PC pc1 (.clk(SYS_clk), .PC_in(PC_in_real), .PC_out(PC_out));
 
     // assign PCPlus4 = PC_out + 4;
+
+
+
+    //exception zone
+    // wire Exception_out;
+    // assign MemRead = (Exception_out)?0:MemRead_signal;
+    // assign MemWrite = (Exception_out)?0:MemWrite_signal;
+    // assign MemtoReg = (Exception_out)?0:Mem2Reg_signal;
+    // Exception ex1(exception_signal, ex,status_out[2],status_out[3],status_out[6],Exception_out);
+    // always @(posedge Exception_out)
+    // begin
+    //     EPC <= (Exception_out) ? PC : EPC;
+    // end
