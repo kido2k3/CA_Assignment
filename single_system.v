@@ -46,10 +46,11 @@ module system(
 
     IMEM        imem (.IMEM_PC(PC), .IMEM_instruction(instruction)); //đọc lấy lệnh ra
 
+    assign RDst = (RegDst_signal)? instruction[15:11]:instruction[20:16]; //nên write vào rd hay rt, tức là I hay R
     REG         Reg1 (  .clk            (SYS_clk),      
                         .REG_address1   (instruction[25:21]), //địa chỉ rs
                         .REG_address2   (instruction[20:16]), //địa chỉ rt
-                        .REG_address_wr (RDst),               //địa chỉ rd, hay là địa chỉ để ghi vào
+                        .REG_address_wr (RDst),               //địa chỉ để ghi vào, là rd trong R, rt trong I
                         .REG_write_1    (RegWrite_signal),    //tín hiê ucho phép ghi hay không
                         .REG_data_wb_in1(Mem2Reg),            //dữ liệu tính toán ra được sắp được ghi vào.
                         .REG_data_out1  (REG_data_out[31:0]), //giá trị rs đọc được để đưa vào tính toán
@@ -99,10 +100,6 @@ module system(
     assign Branch = (status_out[7] && branch_signal)        ? 
                     (PC + 4) + (Out_SignedExtended[7:0]<<2) : 
                     PC + 4;
-
-    assign RDst = (RegDst_signal)? instruction[15:11]:instruction[20:16];
-
-
     
     Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]);
 
