@@ -40,7 +40,7 @@ module ALU_control(
             ALU_control_out = 2;//addi
            end  
         end
-       assign ex = (ALU_control_out == 3);
+       assign ex = (ALU_control_out == 3); //lệnh không hợp lệ của R format
 endmodule
 
 module ALU_control(
