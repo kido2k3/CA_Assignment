@@ -97,3 +97,14 @@ module control(
     assign IsAddi = (opcode==6'b001000);
     assign control_signal = out;
 endmodule
+
+module control(
+    input [5 :0] opcode,
+    output[10:0] control_signal
+);
+
+
+
+endmodule
+
+
