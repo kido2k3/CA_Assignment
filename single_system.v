@@ -89,12 +89,21 @@ module system(
     always @(negedge clk , posedge SYS_reset)
     begin
         if (SYS_reset)
-        begin
             PC <= 32'b0; //các output trở về zero nữa
+        else if (branch_signal)
+        begin
+            if (instruction[31:16] == 6'h4 && status_out[7] ) //beq
+                PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
+            else if (instruction[31:16] == 6'h5 && !status_out[7] ) 
+                PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
+            else 
+                PC <= PC + 4;
         end
-        else
-            PC <= (status_out[7] && branch_signal) ? PC + 4 + (Out_SignedExtended[7:0]<<2) :
-                  (jump_signal)                    ? {PC[31:28], instruction[25:0] ,2'b00} : PC + 4;
+        
+        else if (jump_signal)
+            PC <= {PC[31:28], instruction[25:0] ,2'b00};
+        else 
+            PC <= PC + 4;
     end
     // assign Branch = (status_out[7] && branch_signal) ?  // khi kết quả là 0, đây là beq, đây là địa chỉ nhảy đến
     //                 (PC + 4) + (Out_SignedExtended[7:0]<<2) : PC + 4;
