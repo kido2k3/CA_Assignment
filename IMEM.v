@@ -39,8 +39,9 @@
 //     assign IMEM_instruction = ins[IMEM_PC>>2];
 // endmodule
 module IMEM(
-    input [31:0] IMEM_PC,
-    output [31:0] IMEM_instruction
+    input [31:0] IMEM_PC, //address
+    output [31:0] IMEM_instruction //
 );
-
+    reg [31:0] ins [0:6]; //có 2^7 câu lệnh, mỗi lệnh có 32 bit chứa trong 32 register
+    assign IMEM_instruction = ins[IMEM_PC>>2];
 endmodule
