@@ -42,13 +42,14 @@ module system(
 
     IMEM        imem (.IMEM_PC(PC), .IMEM_instruction(instruction)); //đọc lấy lệnh ra
 
-    assign RDst = (RegDst_signal)? instruction[15:11]:instruction[20:16]; //nên write vào rd hay rt, tức là I hay R
+    assign RDst     = (RegDst_signal) ? instruction[15:11]:instruction[20:16]; //nên write vào rd hay rt, tức là I hay R
+    assign RegWrite = (Exception_out) ? 0 : RegWrite_signal;
     REG         Reg1 (  //INPUT
                         .clk            (SYS_clk),      
                         .REG_address1   (instruction[25:21]), //địa chỉ rs
                         .REG_address2   (instruction[20:16]), //địa chỉ rt
                         .REG_address_wr (RDst),               //địa chỉ để ghi vào, là rd trong R, rt trong I
-                        .REG_write_1    (RegWrite_signal),    //tín hiê ucho phép ghi hay không
+                        .REG_write_1    (RegWrite),           //tín hiê ucho phép ghi hay không
                         .REG_data_wb_in1(Mem2Reg),            //dữ liệu tính toán ra được sắp được ghi vào.
                         //OUTPUT
                         .REG_data_out1  (REG_data_out[31:0]), //giá trị rs đọc được để đưa vào tính toán
@@ -76,11 +77,16 @@ module system(
                       .status_out   (status_out[7:0]) //trạng thái của phép tín htrong alu
                      );
 
+    //handle exception
+    Exception ex1(exception_signal, ex,status_out[2],status_out[3],status_out[6],Exception_out);
+    assign MemRead  = (Exception_out) ? 0 : MemRead_signal;
+    assign MemWrite = (Exception_out) ? 0 : MemWrite_signal;
+
     DMEM        d1( //INPUT
                     .DMEM_address   (result_out[31:0]),
                     .DMEM_data_in   (REG_data_out2[31:0]), 
-                    .DMEM_mem_write (MemWrite_signal), //tín hiệu điều khiển cho phép ghi
-                    .DMEM_mem_read  (MemRead_signal),  //tín hiệu điều khiển cho phép đọc
+                    .DMEM_mem_write (MemWrite), //tín hiệu điều khiển cho phép ghi
+                    .DMEM_mem_read  (MemRead),  //tín hiệu điều khiển cho phép đọc
                     .clk            (SYS_clk), 
                     //OUTPUT
                     .DMEM_data_out  (DMEM_data_out[31:0])
@@ -91,23 +97,31 @@ module system(
     always @(negedge clk , posedge SYS_reset)
     begin
         if (SYS_reset)
-            PC <= 32'b0; //các output trở về zero nữa
-            
-        else if (branch_signal)
         begin
-            if (instruction[31:16] == 6'h4 && status_out[7] ) //beq
-                PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
-            else if (instruction[31:16] == 6'h5 && !status_out[7] ) 
-                PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
+            PC  <= 32'b0; //các output trở về zero nữa
+            EPC <= 32'b0;
+        end    
+
+        else
+        begin
+            EPC <= (Exception_out) ? PC : EPC;  //đồng bộ với clock
+
+            if (branch_signal)
+            begin
+                if (instruction[31:16] == 6'h4 && status_out[7] ) //beq
+                    PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
+                else if (instruction[31:16] == 6'h5 && !status_out[7] ) 
+                    PC <=  PC + 4 + (Out_SignedExtended[7:0]<<2);
+                else 
+                    PC <= PC + 4;
+            end
+            
+            else if (jump_signal)
+                PC <= {PC[31:28], instruction[25:0] ,2'b00};
+                
             else 
                 PC <= PC + 4;
         end
-        
-        else if (jump_signal)
-            PC <= {PC[31:28], instruction[25:0] ,2'b00};
-            
-        else 
-            PC <= PC + 4;
     end
 
     assign SYS_leds =   (SYS_reset)           ? 0                     :
