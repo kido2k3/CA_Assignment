@@ -14,23 +14,19 @@ module system(
     reg [7:0] EPC;
 
     wire [31:0] instruction;
-    wire [4:0]RDst;
+    wire [4:0]  RDst;
     wire [31:0] REG_data_out;
     wire [31:0] REG_data_out2;
-    wire IsAddi;
     wire [31:0] Out_SignedExtended;
-    wire [3:0] control_out;
-    wire ex;
+    wire [3:0]  control_out;
+    wire        ex;
     wire [31:0] ALUSRC;
     wire [31:0] result_out;
-    wire [7:0] status_out;
+    wire [7:0]  status_out;
     wire [31:0] DMEM_data_out;
     wire [31:0] Mem2Reg;
-    wire [7:0] Branch;
-    wire [5:0] Ex4to6_out;
-    wire MemRead;
-    wire MemWrite;
-    wire MemtoReg;
+    wire [7:0]  Branch;
+    wire [5:0]  Ex4to6_out;
     
     wire [10:0] control_signal;
     assign jump_signal      = control_signal[10];
