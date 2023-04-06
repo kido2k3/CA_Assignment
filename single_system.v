@@ -134,39 +134,3 @@ module system(
                         (SYS_output_sel == 6) ? {ex, control_out}     :
                         (SYS_output_sel == 7) ? {PC, EPC}             : {27{1'bx}}; //cần bổ sung trường hợp không có gì
 endmodule
-
-
-
-    // assign Branch = (status_out[7] && branch_signal) ?  // khi kết quả là 0, đây là beq, đây là địa chỉ nhảy đến
-    //                 (PC + 4) + (Out_SignedExtended[7:0]<<2) : PC + 4;
-
-    
-    // Ex4to6 e1(instruction[3:0], Ex4to6_out[5:0]); //mở rộng dấu để handle lệnh jump
-
-    // wire [7:0] PC_in;
-    // wire [7:0] PC_out;
-    // wire [7:0] PCPlus4;
-    // wire [7:0] PC_in_real;
-    
-    // assign PC_in_real = (SYS_reset) ? 0         :
-    //                     (SYS_load)  ? SYS_pc_val:
-    //                     PC_in;
-
-    // assign PC_in = (control_signal[10])?{PCPlus4[7:6], Ex4to6_out[5:0]}:Branch;
-
-    // PC pc1 (.clk(SYS_clk), .PC_in(PC_in_real), .PC_out(PC_out));
-
-    // assign PCPlus4 = PC_out + 4;
-
-
-
-    //exception zone
-    // wire Exception_out;
-    // assign MemRead = (Exception_out)?0:MemRead_signal;
-    // assign MemWrite = (Exception_out)?0:MemWrite_signal;
-    // assign MemtoReg = (Exception_out)?0:Mem2Reg_signal;
-    // Exception ex1(exception_signal, ex,status_out[2],status_out[3],status_out[6],Exception_out);
-    // always @(posedge Exception_out)
-    // begin
-    //     EPC <= (Exception_out) ? PC : EPC;
-    // end
