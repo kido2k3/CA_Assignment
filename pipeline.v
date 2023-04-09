@@ -3,16 +3,32 @@
 //chưa làm theo yêu cầu cơ bản của đ�? thầy
 
 module system(
-    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
-    input SYS_clk,
-    input SYS_reset,
-    input SYS_load,
-    input [7:0] SYS_pc_val,
-    input [7 :0] SYS_output_sel,
-    output[26:0] SYS_leds,
+
+    // input SYS_load,
+    // input [7:0] SYS_pc_val,
+    // input [7 :0] SYS_output_sel,
+    // output[26:0] SYS_leds,
 
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 );
+    reg [4:0] test_address_register; //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+    reg SYS_clk;
+    reg SYS_reset;
+    initial
+    begin
+        SYS_reset = 1;
+        #1 SYS_reset = 0;
+        test_address_register = 8; //kiểm tra giá trị thanh ghi số 8
+
+        SYS_clk=0;
+        forever #8 SYS_clk =~ SYS_clk;
+    end  
+
+    initial
+    begin
+        $monitor("clk = %d, reset = %d, F_instruction = %h",SYS_clk, SYS_reset, F_instruction);
+    end
+
     //FETCH stage
     reg [31:0] PC;
     always @(negedge SYS_clk, posedge SYS_reset)
