@@ -49,19 +49,12 @@ module system_tb;
         test_address_register = 8; //kiểm tra giá trị thanh ghi số 8
 
         SYS_clk=0;
-        forever #8 SYS_clk=~SYS_clk;
+        forever #8 SYS_clk =~ SYS_clk;
     end  
     
     initial
-    begin
-        for(i = 0; i<1000; i=i+1)
-        begin
-            SYS_output_sel = i%8;
-            #1;
-        end
-        
+    begin        
         $monitor("clk = %d, reset = %d, register %d, val = %d",SYS_clk, SYS_reset, test_address_register, test_value_register);
-        // $display("sel = %b",SYS_output_sel);
-        // $display("leds = %b",SYS_leds);
+
     end    
 endmodule
