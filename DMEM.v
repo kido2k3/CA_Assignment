@@ -35,7 +35,7 @@ output[31:0] DMEM_data_out
         
         for(i = 0; i<256; i=i+1)
             data[i] = 0;
-        $readmemh("./input_data.txt", data);
+        $readmemh("C:\Users\tuankiet\Desktop\MIPS CPU\input_data.txt", data);
     end
     wire [31:0] address;
     assign address = DMEM_address;
