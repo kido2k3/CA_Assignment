@@ -16,7 +16,7 @@ module system(
     reg SYS_reset;
     initial
     begin
-        test_address_register = 8; //kiểm tra giá trị thanh ghi số 8
+         //kiểm tra giá trị thanh ghi số 8
         SYS_reset = 0;
         #2 SYS_reset = 1;
         #3 SYS_reset = 0;
@@ -25,12 +25,9 @@ module system(
         forever #5 SYS_clk =~ SYS_clk;
     end  
 
-    initial
-    begin
-        $monitor("time = %d, reset = %d, PC =%h, D_instruction = %h",$time, SYS_reset, PC, D_instruction);
-    end
 
-    //FETCH stage
+
+    //FETCH stage OK
     reg [31:0] PC;
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
@@ -44,14 +41,15 @@ module system(
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //DECODE stage
-    wire [31:0] D_instruction;
-    wire [10:0] D_control_signal;
-    wire [31:0] D_REG_data_out1;
-    wire [31:0] D_REG_data_out2;
-    wire [4:0]  D_write_register;
-    wire [31:0] D_Out_SignedExtended;
+    wire [31:0] D_instruction;          //OK, fixed
+    wire [10:0] D_control_signal;       //OK
+    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm thời là đúng
+    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm thời là đúng    
+    wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
+    wire [31:0] D_Out_SignedExtended;   //tạm thời ok, trong trường hợp đơn giản
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
+    wire [31:0] WB_write_data;
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
@@ -71,10 +69,10 @@ module system(
                         );
 
     //EXECUTION stage
-    wire [31:0] EX_instruction;
-    wire [4:0]  EX_write_register;
-    wire [10:0] EX_control_signal;
-    wire [31:0] EX_ALUresult;
+    wire [31:0] EX_instruction;     //OK
+    wire [4:0]  EX_write_register;  //OK
+    wire [10:0] EX_control_signal;  //OK, như đặc tả
+    wire [31:0] EX_ALUresult;       //OK   
     wire [31:0] EX_operand2;
     execution_stage EX(//INPUT
                         .SYS_clk                (SYS_clk),
@@ -94,10 +92,11 @@ module system(
                       );
 
     //MEMORY stage
-    wire [31:0] MEM_control_signal;
-    wire [31:0] MEM_ALUresult;
-    wire [31:0] MEM_read_data;
-    wire [4:0]  MEM_write_register;
+    wire [10:0] MEM_control_signal; //ok
+    wire [31:0] MEM_ALUresult;      //OK
+    wire [31:0] MEM_read_data;      //OK
+    wire [4:0]  MEM_write_register; //OK
+    wire [31:0] MEM_instruction;    //OK, 
     memory_stage MEM  (//INPUT
                         .SYS_clk            (SYS_clk),
                         .SYS_reset          (SYS_reset),
@@ -110,10 +109,16 @@ module system(
                         .MEM_control_signal (MEM_control_signal),
                         .MEM_ALUresult      (MEM_ALUresult),
                         .MEM_read_data      (MEM_read_data),
-                        .MEM_write_register (MEM_write_register)
+                        .MEM_write_register (MEM_write_register),
+                        .MEM_instruction    (MEM_instruction)
                       );
 
     //Write Back stage
+    initial
+    begin
+        test_address_register = 2;
+        $monitor("PC =%h, WB_write_data = %d, WB_RegWrite_signal = %b, write_register = %d, register %d has val = %d", PC, WB_write_data, WB_RegWrite_signal, WB_write_register, test_address_register, test_value_register);
+    end
     WB_stage WB (//INPUT
                 .SYS_clk            (SYS_clk),
                 .SYS_reset          (SYS_reset),
@@ -122,9 +127,9 @@ module system(
                 .MEM_ALUresult      (MEM_ALUresult),
                 .MEM_write_register (MEM_write_register),
                 //OUTPUT
-                .WB_write_data      (WB_write_data),
-                .WB_RegWrite_signal (WB_RegWrite_signal),
-                .WB_write_register  (WB_write_register)
+                .WB_write_data      (WB_write_data),        //OK
+                .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
+                .WB_write_register  (WB_write_register)     //ok
                 );
 endmodule
 
@@ -134,8 +139,8 @@ module decode_stage (
     input             SYS_reset,
     input [31:0]      F_instruction,
     input             WB_RegWrite_signal,
-    input             WB_write_register,
-    input             WB_write_data,  
+    input [4:0]       WB_write_register,
+    input [31:0]      WB_write_data,  
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
 
@@ -256,12 +261,12 @@ module memory_stage (
     input      [31:0] EX_ALUresult,
     input      [31:0] EX_operand2,
 
-    output reg [31:0] MEM_control_signal,
+    output reg [10:0] MEM_control_signal,
     output reg [31:0] MEM_ALUresult,
     output     [31:0] MEM_read_data,
-    output reg [4:0]  MEM_write_register
+    output reg [4:0]  MEM_write_register,
+    output reg [31:0] MEM_instruction
 );
-    reg [31:0] MEM_instruction;
     reg [31:0] MEM_write_data;
 
     always@(negedge SYS_clk, posedge SYS_reset)
@@ -302,16 +307,16 @@ endmodule
 module WB_stage (
     input             SYS_clk,
     input             SYS_reset,
-    input      [31:0] MEM_control_signal,
+    input      [10:0] MEM_control_signal,
     input      [31:0] MEM_read_data,
     input      [31:0] MEM_ALUresult,
     input      [4:0]  MEM_write_register,
 
-    output            WB_write_data,
+    output     [31:0] WB_write_data,
     output            WB_RegWrite_signal,
     output reg [4:0]  WB_write_register
 );
-    reg [31:0] WB_control_signal;
+    reg [10:0] WB_control_signal;
     reg [31:0] WB_read_data;
     reg [31:0] WB_ALUresult;
 
@@ -335,5 +340,5 @@ module WB_stage (
     end
 
     assign WB_RegWrite_signal = WB_control_signal[1];
-    assign WB_write_data =  WB_control_signal[6] ? WB_read_data : WB_ALUresult;
+    assign WB_write_data =  (WB_control_signal[6]) ? WB_read_data : WB_ALUresult;
 endmodule
