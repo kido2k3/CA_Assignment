@@ -1,6 +1,6 @@
 //b1, không có branch và các hazard
 //chỉ là kiến trúc cơ bản chỉ có lệnh R
-//chưa làm theo yêu cầu cơ bản của đ�? thầy
+//chưa làm theo yêu cầu cơ bản của đ�? thầy
 
 module system(
     input SYS_clk,
@@ -12,13 +12,16 @@ module system(
 );
     //FETCH stage
     reg [31:0] PC;
-    always @(negedge SYS_clk)
+    always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        PC <= PC + 4;
+        if (SYS_reset)
+            PC <= 0;
+        else
+            PC <= PC + 4;
     end
 
     wire [31:0] F_instruction;
-    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
+    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //DECODE stage
     wire        D_instruction;
@@ -119,9 +122,12 @@ module decode_stage (
     output     [4:0]  D_write_register,
     output     [31:0] D_Out_SignedExtended         
 );
-    always @(negedge SYS_clk)
+    always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        D_instruction <= F_instruction;
+        if (SYS_reset)
+            D_instruction <= 0;
+        else
+            D_instruction <= F_instruction;
     end
     
     control crl1 (.opcode         (D_instruction[31:26]),//INPUT
@@ -141,8 +147,8 @@ module decode_stage (
                  .REG_address1    (D_instruction[25:21]), //địa chỉ rs
                  .REG_address2    (D_instruction[20:16]), //địa chỉ rt
                  //OUTPUT
-                 .REG_data_out1   (D_REG_data_out1), //giá trị rs đ�?c được để đưa vào tính toán
-                 .REG_data_out2   (D_REG_data_out2) //giá trị rt đ�?c được để đưa vào tính toán
+                 .REG_data_out1   (D_REG_data_out1), //giá trị rs đ�?c được để đưa vào tính toán
+                 .REG_data_out2   (D_REG_data_out2) //giá trị rt đ�?c được để đưa vào tính toán
                  );
 endmodule
 
@@ -170,14 +176,27 @@ module execution_stage (
     wire [3:0] alu_control;
     wire [31:0] ALUSRC;
 
-    always @(negedge SYS_clk)
+    always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        EX_instruction        <= D_instruction;
-        EX_control_signal     <= D_control_signal;
-        EX_operand1              <= D_REG_data_out1;
-        EX_operand2              <= D_REG_data_out2;
-        EX_Out_SignedExtended <= D_Out_SignedExtended;
-        EX_write_register     <= D_write_register;
+        if (SYS_reset)
+        begin
+            EX_instruction        <= 0;
+            EX_control_signal     <= 0;
+            EX_operand1           <= 0;
+            EX_operand2           <= 0;
+            EX_Out_SignedExtended <= 0;
+            EX_write_register     <= 0;
+        end
+
+        else
+        begin
+            EX_instruction        <= D_instruction;
+            EX_control_signal     <= D_control_signal;
+            EX_operand1           <= D_REG_data_out1;
+            EX_operand2           <= D_REG_data_out2;
+            EX_Out_SignedExtended <= D_Out_SignedExtended;
+            EX_write_register     <= D_write_register;
+        end
     end
 
     ALU_control AC1 (.ALUop       (EX_control_signal[5:4]), //input
@@ -185,7 +204,7 @@ module execution_stage (
                      .control_out (alu_control      [3:0]) //output
                     );
     assign ALUSRC[31:0] = (EX_control_signal[2])?
-                          EX_Out_SignedExtended[31:0] : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+                          EX_Out_SignedExtended[31:0] : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
                       .a            (EX_operand1[31:0]), //rs in
@@ -214,13 +233,25 @@ module memory_stage (
     reg [31:0] MEM_instruction;
     reg [31:0] MEM_write_data;
 
-    always@(SYS_clk)
+    always@(negedge SYS_clk, posedge SYS_reset)
     begin
-        MEM_instruction    <= EX_instruction;
-        MEM_control_signal <= EX_control_signal;
-        MEM_ALUresult      <= EX_ALUresult;
-        MEM_write_data     <= EX_operand2;
-        MEM_write_register <= EX_write_register;
+        if (SYS_reset)
+        begin
+            MEM_instruction    <= 0;
+            MEM_control_signal <= 0;
+            MEM_ALUresult      <= 0;
+            MEM_write_data     <= 0;
+            MEM_write_register <= 0;
+        end
+
+        else
+        begin
+            MEM_instruction    <= EX_instruction;
+            MEM_control_signal <= EX_control_signal;
+            MEM_ALUresult      <= EX_ALUresult;
+            MEM_write_data     <= EX_operand2;
+            MEM_write_register <= EX_write_register;
+        end
     end
 
     assign MemRead_signal = MEM_control_signal[8];
@@ -229,8 +260,8 @@ module memory_stage (
     DMEM    d1( //INPUT
                 .DMEM_address   (MEM_ALUresult), //alu and adrress
                 .DMEM_data_in   (MEM_write_data), 
-                .DMEM_mem_write (MemWrite_signal), //tín hiệu đi�?u khiển cho phép ghi
-                .DMEM_mem_read  (MemRead_signal),  //tín hiệu đi�?u khiển cho phép đ�?c
+                .DMEM_mem_write (MemWrite_signal), //tín hiệu đi�?u khiển cho phép ghi
+                .DMEM_mem_read  (MemRead_signal),  //tín hiệu đi�?u khiển cho phép đ�?c
                 .clk            (SYS_clk), 
                 //OUTPUT
                 .DMEM_data_out  (MEM_read_data)
@@ -253,12 +284,23 @@ module WB_stage (
     reg [31:0] WB_read_data;
     reg [31:0] WB_ALUresult;
 
-    always @(SYS_clk)
+    always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        WB_control_signal <= MEM_control_signal;
-        WB_read_data      <= MEM_read_data;
-        WB_ALUresult      <= MEM_ALUresult;
-        WB_write_register <= MEM_write_register;
+        if (SYS_reset)
+        begin
+            WB_control_signal <= 0;
+            WB_read_data      <= 0;
+            WB_ALUresult      <= 0;
+            WB_write_register <= 0;
+        end
+        
+        else
+        begin
+            WB_control_signal <= MEM_control_signal;
+            WB_read_data      <= MEM_read_data;
+            WB_ALUresult      <= MEM_ALUresult;
+            WB_write_register <= MEM_write_register;
+        end
     end
 
     assign WB_RegWrite_signal = WB_control_signal[1];
