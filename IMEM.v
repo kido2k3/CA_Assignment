@@ -52,7 +52,7 @@ module IMEM(
         begin
             ins[i] = 0;
         end
-        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_data.txt", ins);
+        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_text.txt", ins);
         
     end
 endmodule
