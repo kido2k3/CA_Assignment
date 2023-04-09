@@ -22,9 +22,8 @@
 
 module control(
     input [5 :0] opcode, 
-    output [10:0] control_signal
+    output reg [10:0] control_signal
     );
-    reg [10:0] control_signal;
     always@(*)
     begin
         if(!opcode[5:2])
