@@ -40,7 +40,7 @@ module system(
     assign RegWrite_signal  = control_signal[1];
     assign RegDst_signal    = control_signal[0];
 
-    IMEM        imem (.IMEM_PC(PC), .IMEM_instruction(instruction)); //đọc lấy lệnh ra
+    IMEM        imem (.IMEM_PC(PC), .IMEM_instruction(instruction)); //đ�?c lấy lệnh ra
 
     assign RDst     = (RegDst_signal) ? instruction[15:11]:instruction[20:16]; //nên write vào rd hay rt, tức là I hay R
     assign RegWrite = (Exception_out) ? 0 : RegWrite_signal;
@@ -52,22 +52,22 @@ module system(
                         .REG_write_1    (RegWrite),           //tín hiê ucho phép ghi hay không
                         .REG_data_wb_in1(Mem2Reg),            //dữ liệu tính toán ra được sắp được ghi vào.
                         //OUTPUT
-                        .REG_data_out1  (REG_data_out[31:0]), //giá trị rs đọc được để đưa vào tính toán
-                        .REG_data_out2  (REG_data_out2[31:0]) //giá trị rt đọc được để đưa vào tính toán
+                        .REG_data_out1  (REG_data_out[31:0]), //giá trị rs đ�?c được để đưa vào tính toán
+                        .REG_data_out2  (REG_data_out2[31:0]) //giá trị rt đ�?c được để đưa vào tính toán
                      );
 
     SignedExtended SE1 (instruction[15:0], Out_SignedExtended[31:0]);
 
     control     crl1 (.opcode          (instruction[31:26]),//INPUT
-                      .control_signal  (control_signal),    //tín hiệ output ra
+                      .control_signal  (control_signal)    //tín hiệ output ra
                      );
 
     ALU_control AC1 (.ALUop       (control_signal[5:4]), //input
                      .funct       (instruction[5:0]),    //input
-                     .control_out (control_out[3:0]),    //output
+                     .control_out (control_out[3:0])    //output
                     );
 
-    assign ALUSRC[31:0] = (ALUsrc_signal)?Out_SignedExtended[31:0]:REG_data_out2[31:0]; //quyết định chọn trường nhập vào ALU tùy theo R hay I
+    assign ALUSRC[31:0] = (ALUsrc_signal)?Out_SignedExtended[31:0]:REG_data_out2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
     ALU         alu1 (//INPUT
                       .control      (control_out[3:0]),
                       .a            (REG_data_out[31:0]), //rs in
@@ -85,8 +85,8 @@ module system(
     DMEM        d1( //INPUT
                     .DMEM_address   (result_out[31:0]),
                     .DMEM_data_in   (REG_data_out2[31:0]), 
-                    .DMEM_mem_write (MemWrite), //tín hiệu điều khiển cho phép ghi
-                    .DMEM_mem_read  (MemRead),  //tín hiệu điều khiển cho phép đọc
+                    .DMEM_mem_write (MemWrite), //tín hiệu đi�?u khiển cho phép ghi
+                    .DMEM_mem_read  (MemRead),  //tín hiệu đi�?u khiển cho phép đ�?c
                     .clk            (SYS_clk), 
                     //OUTPUT
                     .DMEM_data_out  (DMEM_data_out[31:0])
@@ -94,11 +94,11 @@ module system(
 
     assign Mem2Reg = (Mem2Reg_signal)? DMEM_data_out : result_out; //quyết định WB
 
-    always @(negedge clk , posedge SYS_reset)
+    always @(negedge SYS_clk , posedge SYS_reset)
     begin
         if (SYS_reset)
         begin
-            PC  <= 32'b0; //các output trở về zero nữa
+            PC  <= 32'b0; //các output trở v�? zero nữa
             EPC <= 32'b0;
         end    
 
@@ -132,5 +132,5 @@ module system(
                         (SYS_output_sel == 4) ? DMEM_data_out         :
                         (SYS_output_sel == 5) ? {16'b0,control_signal}:
                         (SYS_output_sel == 6) ? {ex, control_out}     :
-                        (SYS_output_sel == 7) ? {PC, EPC}             : {27{1'bx}}; //cần bổ sung trường hợp không có gì
+                        (SYS_output_sel == 7) ? {PC, EPC}             : {27{1'bx}}; //cần bổ sung trư�?ng hợp không có gì
 endmodule

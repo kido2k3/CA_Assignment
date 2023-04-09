@@ -6,7 +6,7 @@
 module ALU_control(
     input [1:0] ALUop, //control_signal[5:4]
     input [5:0] funct,
-    output [3:0] control_out
+    output reg [3:0] control_out
 );
     always @(ALUop, funct)
     begin
