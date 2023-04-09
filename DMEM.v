@@ -37,8 +37,8 @@ output[31:0] DMEM_data_out
             data[i] = 0;
         $readmemh("./input_data.txt", data);
     end
-    wire [7:0] address;
-    assign address = DMEM_address[7:0];
+    wire [31:0] address;
+    assign address = DMEM_address;
     assign DMEM_data_out = (DMEM_mem_read)?data[address]:32'b0;
     //always @(posedge clk)
     always@(posedge clk)
