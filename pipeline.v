@@ -16,17 +16,18 @@ module system(
     reg SYS_reset;
     initial
     begin
-        SYS_reset = 1;
-        #1 SYS_reset = 0;
         test_address_register = 8; //kiểm tra giá trị thanh ghi số 8
+        SYS_reset = 0;
+        #2 SYS_reset = 1;
+        #3 SYS_reset = 0;
 
         SYS_clk=0;
-        forever #8 SYS_clk =~ SYS_clk;
+        forever #5 SYS_clk =~ SYS_clk;
     end  
 
     initial
     begin
-        $monitor("clk = %d, reset = %d, F_instruction = %h",SYS_clk, SYS_reset, F_instruction);
+        $monitor("time = %d, reset = %d, PC =%h, D_instruction = %h",$time, SYS_reset, PC, D_instruction);
     end
 
     //FETCH stage
@@ -43,7 +44,7 @@ module system(
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //DECODE stage
-    wire        D_instruction;
+    wire [31:0] D_instruction;
     wire [10:0] D_control_signal;
     wire [31:0] D_REG_data_out1;
     wire [31:0] D_REG_data_out2;
@@ -131,7 +132,7 @@ endmodule
 module decode_stage (
     input             SYS_clk,
     input             SYS_reset,
-    input             F_instruction,
+    input [31:0]      F_instruction,
     input             WB_RegWrite_signal,
     input             WB_write_register,
     input             WB_write_data,  
