@@ -15,13 +15,34 @@ module system(
     wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 
     //FETCH stage OK
+    wire [10:0] D_control_signal;       //OK
+    wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
+    wire [31:0] D_PC;
+
     reg [31:0] PC;
+
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
             PC <= 0;
         else
-            PC <= PC + 4;
+        begin
+            if      (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
+            begin
+                if      (D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch ) //beq
+                    PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
+                else if (D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch ) //bne
+                    PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
+                else 
+                    PC <= PC + 4;
+            end
+
+            else if (D_control_signal[10])  //lệnh jump
+                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
+
+            else
+                PC <= PC + 4;
+        end
     end
 
     wire [31:0] F_instruction;
@@ -29,7 +50,6 @@ module system(
 
     //DECODE stage
     wire [31:0] D_instruction;          //OK, fixed
-    wire [10:0] D_control_signal;       //OK
     wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm thời là đúng
     wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm thời là đúng    
     wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
@@ -41,6 +61,7 @@ module system(
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
                          .F_instruction         (F_instruction),
+                         .F_PC                  (PC),
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
@@ -52,7 +73,9 @@ module system(
                          .D_REG_data_out2       (D_REG_data_out2),
                          .D_write_register      (D_write_register),
                          .D_Out_SignedExtended  (D_Out_SignedExtended),
-                         .test_value_register   (test_value_register)
+                         .test_value_register   (test_value_register),
+                         .D_PC                  (D_PC),
+                         .D_isEqual_onBranch    (D_isEqual_onBranch)
                         );
 
     //EXECUTION stage
@@ -101,6 +124,7 @@ module system(
                       );
 
     //Write Back stage
+    
     WB_stage WB (//INPUT
                 .SYS_clk            (SYS_clk),
                 .SYS_reset          (SYS_reset),
@@ -120,6 +144,7 @@ module decode_stage (
     input             SYS_clk,
     input             SYS_reset,
     input [31:0]      F_instruction,
+    input [31:0]      F_PC,
     input             WB_RegWrite_signal,
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
@@ -132,6 +157,8 @@ module decode_stage (
     output     [31:0] D_REG_data_out2,
     output     [4:0]  D_write_register,
     output     [31:0] D_Out_SignedExtended,
+    output reg [31:0] D_PC,
+    output            D_isEqual_onBranch,   //tín hiệu so sánh branch sớm được đưa lên decode stage
 
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
        
@@ -139,9 +166,16 @@ module decode_stage (
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
+        begin
             D_instruction <= 0;
+            D_PC          <= 0;
+        end
+        
         else
+        begin
             D_instruction <= F_instruction;
+            D_PC          <= F_PC;
+        end
     end
     
     control crl1 (.opcode         (D_instruction[31:26]),//INPUT
@@ -168,6 +202,7 @@ module decode_stage (
                  .REG_data_out2   (D_REG_data_out2), //giá trị rt đ�?c được để đưa vào tính toán
                  .test_value_register (test_value_register)
                  );
+    assign D_isEqual_onBranch = (D_REG_data_out1 == D_REG_data_out2);
 endmodule
 
 
