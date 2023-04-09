@@ -1,6 +1,6 @@
 //b1, không có branch và các hazard
 //chỉ là kiến trúc cơ bản chỉ có lệnh R
-//chưa làm theo yêu cầu cơ bản của đề thầy
+//chưa làm theo yêu cầu cơ bản của đ�? thầy
 
 module system(
     input SYS_clk,
@@ -18,7 +18,7 @@ module system(
     end
 
     wire [31:0] F_instruction;
-    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đọc lấy lệnh ra
+    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //DECODE stage
     wire        D_instruction;
@@ -62,8 +62,8 @@ module system(
                         .EX_instruction         (EX_instruction), 
                         .EX_control_signal      (EX_control_signal),
                         .EX_ALUresult           (EX_ALUresult),
-                        .EX_operand2            (EX_operand2).
-                        .EX_write_register      (EX_write_register),
+                        .EX_operand2            (EX_operand2),
+                        .EX_write_register      (EX_write_register)
                       );
 
     //MEMORY stage
@@ -80,7 +80,7 @@ module system(
                         .EX_ALUresult       (EX_ALUresult),
                         .EX_operand2        (EX_operand2),
                         //OUTPUT
-                        .MEM_control_signal (.MEM_control_signal),
+                        .MEM_control_signal (MEM_control_signal),
                         .MEM_ALUresult      (MEM_ALUresult),
                         .MEM_read_data      (MEM_read_data),
                         .MEM_write_register (MEM_write_register)
@@ -125,7 +125,7 @@ module decode_stage (
     end
     
     control crl1 (.opcode         (D_instruction[31:26]),//INPUT
-                  .control_signal (D_control_signal),    //tín hiệu control output ra
+                  .control_signal (D_control_signal)    //tín hiệu control output ra
                  );
 
     assign D_write_register  = (D_control_signal[0]) ? D_instruction[15:11]:D_instruction[20:16]; //nên write vào rd hay rt, tức là I hay R
@@ -141,8 +141,8 @@ module decode_stage (
                  .REG_address1    (D_instruction[25:21]), //địa chỉ rs
                  .REG_address2    (D_instruction[20:16]), //địa chỉ rt
                  //OUTPUT
-                 .REG_data_out1   (D_REG_data_out1), //giá trị rs đọc được để đưa vào tính toán
-                 .REG_data_out2   (D_REG_data_out2) //giá trị rt đọc được để đưa vào tính toán
+                 .REG_data_out1   (D_REG_data_out1), //giá trị rs đ�?c được để đưa vào tính toán
+                 .REG_data_out2   (D_REG_data_out2) //giá trị rt đ�?c được để đưa vào tính toán
                  );
 endmodule
 
@@ -168,6 +168,7 @@ module execution_stage (
     reg [31:0] EX_Out_SignedExtended;
 
     wire [3:0] alu_control;
+    wire [31:0] ALUSRC;
 
     always @(negedge SYS_clk)
     begin
@@ -181,17 +182,17 @@ module execution_stage (
 
     ALU_control AC1 (.ALUop       (EX_control_signal[5:4]), //input
                      .funct       (EX_instruction   [5:0]), //input
-                     .control_out (alu_control      [3:0]), //output
+                     .control_out (alu_control      [3:0]) //output
                     );
     assign ALUSRC[31:0] = (EX_control_signal[2])?
-                          EX_Out_SignedExtended[31:0] : EX_operand2[31:0]; //quyết định chọn trường nhập vào ALU tùy theo R hay I
+                          EX_Out_SignedExtended[31:0] : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
                       .a            (EX_operand1[31:0]), //rs in
                       .b            (ALUSRC[31:0]),       //rt or imm
                       //OUTPUT
                       .result_out   (EX_ALUresult[31:0]),
-                      .status_out   (status_out[7:0]) //trạng thái của phép tín htrong alu
+                      .status_out   (status_out) //trạng thái của phép tín htrong alu
                      );
 endmodule
 
@@ -210,7 +211,7 @@ module memory_stage (
     output     [31:0] MEM_read_data,
     output reg [4:0]  MEM_write_register
 );
-    reg [31:0] MEM_instruction,
+    reg [31:0] MEM_instruction;
     reg [31:0] MEM_write_data;
 
     always@(SYS_clk)
@@ -228,8 +229,8 @@ module memory_stage (
     DMEM    d1( //INPUT
                 .DMEM_address   (MEM_ALUresult), //alu and adrress
                 .DMEM_data_in   (MEM_write_data), 
-                .DMEM_mem_write (MemWrite_signal), //tín hiệu điều khiển cho phép ghi
-                .DMEM_mem_read  (MemRead_signal),  //tín hiệu điều khiển cho phép đọc
+                .DMEM_mem_write (MemWrite_signal), //tín hiệu đi�?u khiển cho phép ghi
+                .DMEM_mem_read  (MemRead_signal),  //tín hiệu đi�?u khiển cho phép đ�?c
                 .clk            (SYS_clk), 
                 //OUTPUT
                 .DMEM_data_out  (MEM_read_data)
