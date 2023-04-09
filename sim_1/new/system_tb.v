@@ -46,7 +46,7 @@ module system_tb;
     begin
         SYS_reset = 1;
         #1 SYS_reset = 0;
-        test_address_register = 8 //kiểm tra giá trị thanh ghi số 8
+        test_address_register = 8; //kiểm tra giá trị thanh ghi số 8
 
         SYS_clk=0;
         forever #8 SYS_clk=~SYS_clk;

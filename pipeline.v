@@ -33,6 +33,8 @@ module system(
     wire [31:0] D_REG_data_out2;
     wire [4:0]  D_write_register;
     wire [31:0] D_Out_SignedExtended;
+    wire        WB_RegWrite_signal;
+    wire [4:0]  WB_write_register;
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
@@ -40,7 +42,7 @@ module system(
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
-                         .test_address_register (test_address_register)
+                         .test_address_register (test_address_register),
                          //OUTPUT
                          .D_instruction         (D_instruction),
                          .D_control_signal      (D_control_signal),
@@ -95,8 +97,6 @@ module system(
                       );
 
     //Write Back stage
-    wire        WB_RegWrite_signal;
-    wire [4:0]  WB_write_register;
     WB_stage WB (//INPUT
                 .SYS_clk            (SYS_clk),
                 .SYS_reset          (SYS_reset),
