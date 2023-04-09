@@ -27,8 +27,11 @@ input [4:0] REG_address_wr,
 input REG_write_1, 
 input [31:0] REG_data_wb_in1, 
 input clk,
+input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+
 output[31:0] REG_data_out1, 
-output[31:0] REG_data_out2
+output[31:0] REG_data_out2,
+output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
     );
     reg [31:0] register [0:31];
     integer i;
@@ -45,4 +48,6 @@ output[31:0] REG_data_out2
     if(REG_write_1)
         register[REG_address_wr] = REG_data_wb_in1;
     end
+
+    assign test_value_register = register[test_address_register];
 endmodule

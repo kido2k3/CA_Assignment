@@ -3,12 +3,15 @@
 //chưa làm theo yêu cầu cơ bản của đ�? thầy
 
 module system(
+    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
     input SYS_clk,
     input SYS_reset,
     input SYS_load,
     input [7:0] SYS_pc_val,
     input [7 :0] SYS_output_sel,
-    output[26:0] SYS_leds
+    output[26:0] SYS_leds,
+
+    output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 );
     //FETCH stage
     reg [31:0] PC;
@@ -37,13 +40,15 @@ module system(
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
+                         .test_address_register (test_address_register)
                          //OUTPUT
                          .D_instruction         (D_instruction),
                          .D_control_signal      (D_control_signal),
                          .D_REG_data_out1       (D_REG_data_out1),
                          .D_REG_data_out2       (D_REG_data_out2),
                          .D_write_register      (D_write_register),
-                         .D_Out_SignedExtended  (D_Out_SignedExtended)
+                         .D_Out_SignedExtended  (D_Out_SignedExtended),
+                         .test_value_register   (test_value_register)
                         );
 
     //EXECUTION stage
@@ -114,13 +119,18 @@ module decode_stage (
     input             WB_RegWrite_signal,
     input             WB_write_register,
     input             WB_write_data,  
+    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+
 
     output reg [31:0] D_instruction,    //lưu giữ instruction để handle được hazard
     output     [10:0] D_control_signal, //cứ lưu giữ hết tất cả các tín hiệu control
     output     [31:0] D_REG_data_out1,
     output     [31:0] D_REG_data_out2,
     output     [4:0]  D_write_register,
-    output     [31:0] D_Out_SignedExtended         
+    output     [31:0] D_Out_SignedExtended,
+
+    output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+       
 );
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
@@ -146,9 +156,13 @@ module decode_stage (
                  //INPUT
                  .REG_address1    (D_instruction[25:21]), //địa chỉ rs
                  .REG_address2    (D_instruction[20:16]), //địa chỉ rt
+
+                 .test_address_register (test_address_register), //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+
                  //OUTPUT
                  .REG_data_out1   (D_REG_data_out1), //giá trị rs đ�?c được để đưa vào tính toán
-                 .REG_data_out2   (D_REG_data_out2) //giá trị rt đ�?c được để đưa vào tính toán
+                 .REG_data_out2   (D_REG_data_out2), //giá trị rt đ�?c được để đưa vào tính toán
+                 .test_value_register (test_value_register)
                  );
 endmodule
 
