@@ -206,7 +206,7 @@ module system(
 
         else if (!MEM_instruction[31:28])     //lenh trong MEM la lenh R)
         begin
-            if      (!D_instruction[31:28]) //R
+            if      (!D_instruction[31:28] || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
             begin
                 if (MEM_instruction[15:11] ==D_instruction[25:21]) //rd == rs
                     D_to_MEM_forwardSignal[1] <= 1'b1;
@@ -233,7 +233,7 @@ module system(
     
         else if (MEM_instruction[31:26] == 6'b001000) //neu lenh trong MEM la addi
         begin
-            if      (!D_instruction[31:28]) //R
+            if      (!D_instruction[31:28] || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21]) //rt == rs
                     D_to_MEM_forwardSignal[1] <= 1'b1;
