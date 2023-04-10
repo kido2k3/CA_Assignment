@@ -55,10 +55,41 @@ module system(
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
-            PC <= 0;
+        begin
+            PC                  <= 0;
+            F_stall_counter     <= 0;
+            D_stall_counter     <= 0;
+            EX_stall_counter    <= 0;
+            MEM_stall_counter   <= 0;
+            WB_stall_counter    <= 0;
+        end
+
         else
         begin
-            if      (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
+            if (F_stall_counter)
+                 F_stall_counter <= F_stall_counter -1;
+            else F_stall_counter <= F_stall_counter;
+            
+            if (D_stall_counter)
+                 D_stall_counter <= D_stall_counter - 1;
+            else D_stall_counter <= D_stall_counter;
+
+
+            if (EX_stall_counter) 
+                 EX_stall_counter <= EX_stall_counter - 1;
+            else EX_stall_counter <= EX_stall_counter;
+
+            if (MEM_stall_counter)
+                 MEM_stall_counter <= MEM_stall_counter - 1;
+            else MEM_stall_counter <= MEM_stall_counter;
+
+            if (WB_stall_counter)
+                 MEM_stall_counter <= MEM_stall_counter - 1;
+            else MEM_stall_counter <= MEM_stall_counter;
+
+            if      (F_stall_counter)  //khong lam gi neu dang co stall
+                PC <= PC;
+            else if (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
             begin
                 if      (D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch ) //beq
                     PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
@@ -77,6 +108,106 @@ module system(
     end
 
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
+
+    reg [1:0] F_stall_counter, D_stall_counter, EX_stall_counter, MEM_stall_counter, WB_stall_counter; //những biến dùng để điểm số lần sẽ bị stall
+    //detection data hazard between EX and Decode stage
+    always @()
+    begin
+        if (!D_instruction) begin end //dothing if nop
+
+        else if (!D_instruction[31:28])     //lenh trong D la lenh R)
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if (D_instruction[15:11] == EX_instruction[25:21] || D_instruction[15:11] == EX_instruction[20:16] ) //rd == rs or rt
+                begin
+                    //stall
+                    D_stall_counter <= 1;
+                    F_stall_counter <= 1;
+                end
+                else
+                begin
+                    //do nothing
+                    D_stall_counter <= D_stall_counter;
+                    F_stall_counter <= F_stall_counter;
+                end
+            end
+            
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (D_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                begin
+                    //stall
+                    D_stall_counter <= 1;
+                    F_stall_counter <= 1;
+                end
+                else
+                begin
+                    //do nothing
+                    D_stall_counter <= D_stall_counter;
+                    F_stall_counter <= F_stall_counter;
+                end
+            end
+
+            else
+            begin
+                //do nothing
+                D_stall_counter <= D_stall_counter;
+                F_stall_counter <= F_stall_counter;
+            end
+        end
+    
+        else if (D_instruction[31:26] == 6'b001000) //neu lenh trong D la addi
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if (D_instruction[20:16] == EX_instruction[25:21] || D_instruction[20:16] == EX_instruction[20:16]) //rt == rs or rt
+                begin
+                    //stall
+                    D_stall_counter <= 1;
+                    F_stall_counter <= 1;
+                end
+                else
+                begin
+                    //do nothing
+                    D_stall_counter <= D_stall_counter;
+                    F_stall_counter <= F_stall_counter;
+                end
+
+            end
+            
+
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (D_instruction[20:16] == EX_instruction[25:21])   //rd == rs
+                begin
+                    //stall
+                    D_stall_counter <= 1;
+                    F_stall_counter <= 1;
+                end
+                else
+                begin
+                    //do nothing
+                    D_stall_counter <= D_stall_counter;
+                    F_stall_counter <= F_stall_counter;
+                end
+            end
+            
+            else
+            begin
+                //do nothing
+                D_stall_counter <= D_stall_counter;
+                F_stall_counter <= F_stall_counter;
+            end
+        end
+
+        else
+        begin
+            //do nothing
+            D_stall_counter <= D_stall_counter;
+            F_stall_counter <= F_stall_counter;
+        end
+    end
 
 
     decode_stage decode (//INPUT
