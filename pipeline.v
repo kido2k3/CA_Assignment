@@ -110,10 +110,10 @@ module system(
                         .D_REG_data_out2        (D_REG_data_out2),
                         .D_write_register       (D_write_register),
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
-                        .MEM_ALUresult          (MEM_ALUresult),            //forward
-                        .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
-                        .WB_write_data          (WB_write_data),            //forward data from WB to EX
-                        .EX_to_WB_forwardSignal (EX_to_WB_forwardSignal),   //forward signal
+                        // .MEM_ALUresult          (MEM_ALUresult),            //forward
+                        // .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
+                        // .WB_write_data          (WB_write_data),            //forward data from WB to EX
+                        // .EX_to_WB_forwardSignal (EX_to_WB_forwardSignal),   //forward signal
                         //OUTPUT
                         .EX_instruction         (EX_instruction), 
                         .EX_control_signal      (EX_control_signal),
@@ -359,10 +359,10 @@ module execution_stage (
     input      [31:0] D_REG_data_out2,
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
-    input      [31:0] MEM_ALUresult,            //forward
-    input      [1:0]  EX_to_MEM_forwardSignal,  //forward
-    input      [31:0] WB_write_data,            //forward
-    input      [1:0]  EX_to_WB_forwardSignal,   //forward
+    // input      [31:0] MEM_ALUresult,            //forward
+    // input      [1:0]  EX_to_MEM_forwardSignal,  //forward
+    // input      [31:0] WB_write_data,            //forward
+    // input      [1:0]  EX_to_WB_forwardSignal,   //forward
 
     output reg [31:0] EX_instruction, 
     output reg [10:0] EX_control_signal,
@@ -404,17 +404,18 @@ module execution_stage (
                      .funct       (EX_instruction   [5:0]), //input
                      .control_out (alu_control      [3:0]) //output
                     );
-    assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
-                          (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
-                          (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
-    
-    wire [31:0] rs;
-    assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
-                (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
+    // assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
+    //                       (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
+    //                       (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+    assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : EX_operand2[31:0];
+
+    // wire [31:0] rs;
+    // assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
+    //             (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
 
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
-                      .a            (rs), //rs in
+                      .a            (EX_operand1), //rs in
                       .b            (ALUSRC[31:0]),       //rt or imm
                       //OUTPUT
                       .result_out   (EX_ALUresult[31:0]),
