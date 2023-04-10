@@ -167,7 +167,7 @@ module system(
                 else
                     D_to_MEM_forwardSignal[1] <= 1'b0;
 
-                if (MEM_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                if (MEM_instruction[15:11] == D_instruction[20:16]) //rd == rt
                     D_to_MEM_forwardSignal[0] <= 1'b1;
                 else
                     D_to_MEM_forwardSignal[0] <= 1'b0;                   //khong forward
