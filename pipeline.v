@@ -27,7 +27,7 @@ module system(
 
     initial
     begin
-        test_address_register = 10;
+        test_address_register = 8;
         $monitor("PC =%h, D_instruction = %h, test_address_register = %d, test_value_register = %d", PC, D_instruction, test_address_register, test_value_register);
     end
     
