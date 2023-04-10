@@ -123,7 +123,7 @@ module system(
             if      (!D_instruction[31:28]) //R
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
 
@@ -132,7 +132,7 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
             end
@@ -146,7 +146,7 @@ module system(
             if      (!D_instruction[31:28]) //R
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
 
@@ -156,7 +156,7 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
             end
