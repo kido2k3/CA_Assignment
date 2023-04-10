@@ -28,7 +28,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, PC =%h, D_instruction = %h", $time, PC, D_instruction);
+        $monitor("time = %d, PC =%h, D_instruction = %h, D_stall_counter = %b", $time, PC, D_instruction, D_stall_counter);
     end
 
     initial 
