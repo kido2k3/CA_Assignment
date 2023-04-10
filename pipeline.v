@@ -78,9 +78,6 @@ module system(
         begin
             PC                  <= 0;
             D_stall_counter     <= 0;
-            EX_stall_counter    <= 0;
-            MEM_stall_counter   <= 0;
-            WB_stall_counter    <= 0;
         end
 
         else
@@ -130,7 +127,6 @@ module system(
                 
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
-                end
             end
             
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
@@ -157,8 +153,6 @@ module system(
                 
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
-                end
-
             end
             
 
