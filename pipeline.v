@@ -46,6 +46,7 @@ module system(
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
+    wire [31:0] WB_instruction;
 
     //data hazard
     reg [1:0] EX_to_MEM_forwardSignal;
@@ -143,7 +144,9 @@ module system(
                 .MEM_read_data      (MEM_read_data),
                 .MEM_ALUresult      (MEM_ALUresult),
                 .MEM_write_register (MEM_write_register),
+                .MEM_instruction    (MEM_instruction),
                 //OUTPUT
+                .WB_instruction     (WB_instruction),
                 .WB_write_data      (WB_write_data),        //OK
                 .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
                 .WB_write_register  (WB_write_register)     //ok
@@ -404,10 +407,12 @@ module WB_stage (
     input      [31:0] MEM_read_data,
     input      [31:0] MEM_ALUresult,
     input      [4:0]  MEM_write_register,
+    input      [31:0] MEM_instruction, 
 
     output     [31:0] WB_write_data,
     output            WB_RegWrite_signal,
-    output reg [4:0]  WB_write_register
+    output reg [4:0]  WB_write_register,
+    output reg [31:0] WB_instruction
 );
     reg [10:0] WB_control_signal;
     reg [31:0] WB_read_data;
@@ -421,6 +426,7 @@ module WB_stage (
             WB_read_data      <= 0;
             WB_ALUresult      <= 0;
             WB_write_register <= 0;
+            WB_instruction    <= 0;
         end
         
         else
@@ -429,6 +435,7 @@ module WB_stage (
             WB_read_data      <= MEM_read_data;
             WB_ALUresult      <= MEM_ALUresult;
             WB_write_register <= MEM_write_register;
+            WB_instruction    <= MEM_instruction;
         end
     end
 
