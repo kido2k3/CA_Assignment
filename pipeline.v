@@ -52,12 +52,14 @@ module system(
     reg [1:0] EX_to_MEM_forwardSignal;
     reg [1:0] EX_to_WB_forwardSignal;
 
+    reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
+
+
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
         begin
             PC                  <= 0;
-            F_stall_counter     <= 0;
             D_stall_counter     <= 0;
             EX_stall_counter    <= 0;
             MEM_stall_counter   <= 0;
@@ -95,11 +97,11 @@ module system(
 
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
-    reg [1:0] D_stall_counter; //những biến dùng để điểm số lần sẽ bị stall
     //detection data hazard between EX and Decode stage
-    always @()
+    always @(D_instruction, EX_instruction)
     begin
-        if (!D_instruction) begin end //dothing if nop
+        if (!EX_instruction)  //dothing if nop
+            D_stall_counter <= D_stall_counter;
 
         else if (!D_instruction[31:28])     //lenh trong D la lenh R)
         begin
@@ -107,7 +109,7 @@ module system(
             begin
                 if (D_instruction[15:11] == EX_instruction[25:21] || D_instruction[15:11] == EX_instruction[20:16] ) //rd == rs or rt
                     //stall
-                    D_stall_counter <= 1;
+                    D_stall_counter <= 3;
                 
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
@@ -118,7 +120,7 @@ module system(
             begin
                 if (D_instruction[15:11] == EX_instruction[25:21])   //rd == rs
                     //stall
-                    D_stall_counter <= 1;
+                    D_stall_counter <= 3;
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
                 
@@ -134,7 +136,7 @@ module system(
             begin
                 if (D_instruction[20:16] == EX_instruction[25:21] || D_instruction[20:16] == EX_instruction[20:16]) //rt == rs or rt
                     //stall
-                    D_stall_counter <= 1;
+                    D_stall_counter <= 3;
                 
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
@@ -147,7 +149,7 @@ module system(
             begin
                 if (D_instruction[20:16] == EX_instruction[25:21])   //rd == rs
                     //stall
-                    D_stall_counter <= 1;
+                    D_stall_counter <= 3;
                 
                 else //do nothing
                     D_stall_counter <= D_stall_counter;
@@ -171,6 +173,7 @@ module system(
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
+                         .D_stall_counter       (D_stall_counter),
                          .test_address_register (test_address_register),
                          //OUTPUT
                          .D_instruction         (D_instruction),
@@ -194,6 +197,7 @@ module system(
                         .D_REG_data_out2        (D_REG_data_out2),
                         .D_write_register       (D_write_register),
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
+                        .D_stall_counter        (D_stall_counter),
                         // .MEM_ALUresult          (MEM_ALUresult),            //forward
                         // .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
                         // .WB_write_data          (WB_write_data),            //forward data from WB to EX
@@ -376,6 +380,8 @@ module decode_stage (
     input             WB_RegWrite_signal,
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
+    input [1:0]       D_stall_counter,
+
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
 
@@ -399,6 +405,12 @@ module decode_stage (
             D_PC          <= 0;
         end
         
+        else if (D_stall_counter)
+        begin
+            D_instruction <= D_instruction;
+            D_PC          <= D_PC;
+        end
+
         else
         begin
             D_instruction <= F_instruction;
@@ -443,6 +455,7 @@ module execution_stage (
     input      [31:0] D_REG_data_out2,
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
+    input      [1:0]  D_stall_counter, 
     // input      [31:0] MEM_ALUresult,            //forward
     // input      [1:0]  EX_to_MEM_forwardSignal,  //forward
     // input      [31:0] WB_write_data,            //forward
@@ -463,7 +476,7 @@ module execution_stage (
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        if (SYS_reset)
+        if (SYS_reset || D_stall_counter)
         begin
             EX_instruction        <= 0;
             EX_control_signal     <= 0;
