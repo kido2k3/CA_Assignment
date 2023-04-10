@@ -69,13 +69,32 @@ module system(
     reg [1:0] EX_to_MEM_forwardSignal;
     reg [1:0] EX_to_WB_forwardSignal;
 
+    reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
+
+
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
-            PC <= 0;
+        begin
+            PC                  <= 0;
+            D_stall_counter     <= 0;
+            EX_stall_counter    <= 0;
+            MEM_stall_counter   <= 0;
+            WB_stall_counter    <= 0;
+        end
+
         else
         begin
-            if      (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
+            if (D_stall_counter)
+                D_stall_counter <= D_stall_counter - 1;
+            else 
+                D_stall_counter <= D_stall_counter;
+
+
+
+            if      (D_stall_counter)  //khong lam gi neu dang co stall
+                PC <= PC;
+            else if (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
             begin
                 if      (D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch ) //beq
                     PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
@@ -95,6 +114,74 @@ module system(
 
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
+    //detection data hazard between EX and Decode stage
+    always @(D_instruction, EX_instruction)
+    begin
+        if (!EX_instruction)  //dothing if nop
+            D_stall_counter <= D_stall_counter;
+
+        else if (!D_instruction[31:28])     //lenh trong D la lenh R)
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if (D_instruction[15:11] == EX_instruction[25:21] || D_instruction[15:11] == EX_instruction[20:16] ) //rd == rs or rt
+                    //stall
+                    D_stall_counter <= 3;
+                
+                else //do nothing
+                    D_stall_counter <= D_stall_counter;
+                end
+            end
+            
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (D_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                    //stall
+                    D_stall_counter <= 3;
+                else //do nothing
+                    D_stall_counter <= D_stall_counter;
+                
+            end
+
+            else //do nothing
+                D_stall_counter <= D_stall_counter;
+        end
+    
+        else if (D_instruction[31:26] == 6'b001000) //neu lenh trong D la addi
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if (D_instruction[20:16] == EX_instruction[25:21] || D_instruction[20:16] == EX_instruction[20:16]) //rt == rs or rt
+                    //stall
+                    D_stall_counter <= 3;
+                
+                else //do nothing
+                    D_stall_counter <= D_stall_counter;
+                end
+
+            end
+            
+
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (D_instruction[20:16] == EX_instruction[25:21])   //rd == rs
+                    //stall
+                    D_stall_counter <= 3;
+                
+                else //do nothing
+                    D_stall_counter <= D_stall_counter;
+            end
+            
+            else //do nothing
+                D_stall_counter <= D_stall_counter;
+            
+        end
+
+        else //do nothing
+            D_stall_counter <= D_stall_counter;
+    end
+
+
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
@@ -103,6 +190,7 @@ module system(
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
+                         .D_stall_counter       (D_stall_counter),
                          .test_address_register (test_address_register),
                          //OUTPUT
                          .D_instruction         (D_instruction),
@@ -126,10 +214,11 @@ module system(
                         .D_REG_data_out2        (D_REG_data_out2),
                         .D_write_register       (D_write_register),
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
-                        .MEM_ALUresult          (MEM_ALUresult),            //forward
-                        .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
-                        .WB_write_data          (WB_write_data),            //forward data from WB to EX
-                        .EX_to_WB_forwardSignal (EX_to_WB_forwardSignal),   //forward signal
+                        .D_stall_counter        (D_stall_counter),
+                        // .MEM_ALUresult          (MEM_ALUresult),            //forward
+                        // .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
+                        // .WB_write_data          (WB_write_data),            //forward data from WB to EX
+                        // .EX_to_WB_forwardSignal (EX_to_WB_forwardSignal),   //forward signal
                         //OUTPUT
                         .EX_instruction         (EX_instruction), 
                         .EX_control_signal      (EX_control_signal),
@@ -308,6 +397,8 @@ module decode_stage (
     input             WB_RegWrite_signal,
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
+    input [1:0]       D_stall_counter,
+
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
 
@@ -331,6 +422,12 @@ module decode_stage (
             D_PC          <= 0;
         end
         
+        else if (D_stall_counter)
+        begin
+            D_instruction <= D_instruction;
+            D_PC          <= D_PC;
+        end
+
         else
         begin
             D_instruction <= F_instruction;
@@ -375,10 +472,11 @@ module execution_stage (
     input      [31:0] D_REG_data_out2,
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
-    input      [31:0] MEM_ALUresult,            //forward
-    input      [1:0]  EX_to_MEM_forwardSignal,  //forward
-    input      [31:0] WB_write_data,            //forward
-    input      [1:0]  EX_to_WB_forwardSignal,   //forward
+    input      [1:0]  D_stall_counter, 
+    // input      [31:0] MEM_ALUresult,            //forward
+    // input      [1:0]  EX_to_MEM_forwardSignal,  //forward
+    // input      [31:0] WB_write_data,            //forward
+    // input      [1:0]  EX_to_WB_forwardSignal,   //forward
 
     output reg [31:0] EX_instruction, 
     output reg [10:0] EX_control_signal,
@@ -395,7 +493,7 @@ module execution_stage (
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
-        if (SYS_reset)
+        if (SYS_reset || D_stall_counter)
         begin
             EX_instruction        <= 0;
             EX_control_signal     <= 0;
@@ -420,17 +518,18 @@ module execution_stage (
                      .funct       (EX_instruction   [5:0]), //input
                      .control_out (alu_control      [3:0]) //output
                     );
-    assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
-                          (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
-                          (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
-    
-    wire [31:0] rs;
-    assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
-                (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
+    // assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
+    //                       (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
+    //                       (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+    assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : EX_operand2[31:0];
+
+    // wire [31:0] rs;
+    // assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
+    //             (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
 
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
-                      .a            (rs), //rs in
+                      .a            (EX_operand1), //rs in
                       .b            (ALUSRC[31:0]),       //rt or imm
                       //OUTPUT
                       .result_out   (EX_ALUresult[31:0]),
