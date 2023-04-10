@@ -163,20 +163,23 @@ module system(
         begin
             if      (!EX_instruction[31:28]) //R
             begin
-                if      (MEM_instruction[15:11] == EX_instruction[25:21]) //rd == rs
-                    EX_to_MEM_forwardSignal <= 2'b10;
-                else if (MEM_instruction[15:11] == EX_instruction[20:16]) //rd == rt
-                    EX_to_MEM_forwardSignal <= 2'b01;
+                if (MEM_instruction[15:11] == EX_instruction[25:21]) //rd == rs
+                    EX_to_MEM_forwardSignal[1] <= 1'b1;
                 else
-                    EX_to_MEM_forwardSignal <= 2'b00;                   //khong forward
+                    EX_to_MEM_forwardSignal[1] <= 1'b0;
+
+                if (MEM_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                    EX_to_MEM_forwardSignal[0] <= 1'b1;
+                else
+                    EX_to_MEM_forwardSignal[0] <= 1'b0;                   //khong forward
             end
             
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
-                if      (MEM_instruction[15:11] == EX_instruction[25:21])   //rd == rs
-                    EX_to_MEM_forwardSignal <= 2'b10;                      
+                if (MEM_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                    EX_to_MEM_forwardSignal[1] <= 1'b1;                      
                 else
-                    EX_to_MEM_forwardSignal <= 2'b00;
+                    EX_to_MEM_forwardSignal[1] <= 1'b0;
             end
 
             else
@@ -187,21 +190,24 @@ module system(
         begin
             if      (!EX_instruction[31:28]) //R
             begin
-                if      (MEM_instruction[20:16] == EX_instruction[25:21]) //rt == rs
-                    EX_to_MEM_forwardSignal <= 2'b10;
-                else if (MEM_instruction[20:16] == EX_instruction[20:16]) //rt == rt
-                    EX_to_MEM_forwardSignal <= 2'b01;
+                if (MEM_instruction[20:16] == EX_instruction[25:21]) //rt == rs
+                    EX_to_MEM_forwardSignal[1] <= 1'b1;
                 else
-                    EX_to_MEM_forwardSignal <= 2'b00;
+                    EX_to_MEM_forwardSignal[1] <= 1'b0;
+
+                if (MEM_instruction[20:16] == EX_instruction[20:16]) //rt == rt
+                    EX_to_MEM_forwardSignal[0] <= 1'b1;
+                else
+                    EX_to_MEM_forwardSignal[0] <= 1'b0;
             end
             
 
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if      (MEM_instruction[20:16] == EX_instruction[25:21])   //rd == rs
-                    EX_to_MEM_forwardSignal <= 2'b10;                      
+                    EX_to_MEM_forwardSignal[1] <= 1'b1;                      
                 else
-                    EX_to_MEM_forwardSignal <= 2'b00;
+                    EX_to_MEM_forwardSignal[1] <= 1'b0;
             end
             
             else
@@ -219,20 +225,23 @@ module system(
         begin
             if      (!EX_instruction[31:28]) //R
             begin
-                if      (WB_instruction[15:11] == EX_instruction[25:21]) //rd == rs
-                    EX_to_WB_forwardSignal <= 2'b10;
-                else if (WB_instruction[15:11] == EX_instruction[20:16]) //rd == rt
-                    EX_to_WB_forwardSignal <= 2'b01;
+                if (WB_instruction[15:11] == EX_instruction[25:21]) //rd == rs
+                    EX_to_WB_forwardSignal[1] <= 1'b1;
                 else
-                    EX_to_WB_forwardSignal <= 2'b00;                   //khong forward
+                    EX_to_WB_forwardSignal[1] <= 1'b0;
+
+                if (WB_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                    EX_to_WB_forwardSignal[0] <= 1'b1;
+                else
+                    EX_to_WB_forwardSignal[0] <= 1'b0;                   //khong forward
             end
             
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
-                if      (WB_instruction[15:11] == EX_instruction[25:21])   //rd == rs
-                    EX_to_WB_forwardSignal <= 2'b10;                      
+                if (WB_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                    EX_to_WB_forwardSignal[1] <= 1'b1;                      
                 else
-                    EX_to_WB_forwardSignal <= 2'b00;
+                    EX_to_WB_forwardSignal[1] <= 1'b0;
             end
 
             else
@@ -243,21 +252,24 @@ module system(
         begin
             if      (!EX_instruction[31:28]) //R
             begin
-                if      (WB_instruction[20:16] == EX_instruction[25:21]) //rt == rs
-                    EX_to_WB_forwardSignal <= 2'b10;
-                else if (WB_instruction[20:16] == EX_instruction[20:16]) //rt == rt
-                    EX_to_WB_forwardSignal <= 2'b01;
+                if (WB_instruction[20:16] == EX_instruction[25:21]) //rt == rs
+                    EX_to_WB_forwardSignal[1] <= 1'b1;
                 else
-                    EX_to_WB_forwardSignal <= 2'b00;
+                    EX_to_WB_forwardSignal[1] <= 1'b0;
+
+                if (WB_instruction[20:16] == EX_instruction[20:16]) //rt == rt
+                    EX_to_WB_forwardSignal[0] <= 1'b1;
+                else
+                    EX_to_WB_forwardSignal[0] <= 1'b0;
             end
             
 
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if      (WB_instruction[20:16] == EX_instruction[25:21])   //rd == rs
-                    EX_to_WB_forwardSignal <= 2'b10;                      
+                    EX_to_WB_forwardSignal[1] <= 1'b1;                      
                 else
-                    EX_to_WB_forwardSignal <= 2'b00;
+                    EX_to_WB_forwardSignal[1] <= 1'b0;
             end
             
             else
@@ -392,13 +404,13 @@ module execution_stage (
                      .funct       (EX_instruction   [5:0]), //input
                      .control_out (alu_control      [3:0]) //output
                     );
-    assign ALUSRC[31:0] = (EX_control_signal[2])             ? EX_Out_SignedExtended[31:0] : 
-                          (EX_to_MEM_forwardSignal == 2'b01) ? MEM_ALUresult               :
-                          (EX_to_WB_forwardSignal ==  2'b01) ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+    assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
+                          (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
+                          (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
     
     wire [31:0] rs;
-    assign rs = (EX_to_MEM_forwardSignal == 2'b10) ?  MEM_ALUresult : 
-                (EX_to_WB_forwardSignal  == 2'b10) ?  WB_write_data :  EX_operand1;//decide to forward
+    assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
+                (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
 
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
