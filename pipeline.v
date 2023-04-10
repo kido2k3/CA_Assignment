@@ -156,7 +156,7 @@ module system(
     always @(MEM_instruction, D_instruction)
     begin
         if (!MEM_instruction || !D_instruction) //nothing
-            D_to_MEM_forwardSignal <= D_to_MEM_forwardSignal;
+            D_to_MEM_forwardSignal <= 2'b00;
 
         else if (!MEM_instruction[31:28])     //lenh trong MEM la lenh R)
         begin
@@ -227,6 +227,9 @@ module system(
                          .WB_write_register     (WB_write_register),
                          .WB_write_data         (WB_write_data),
                          .D_stall_counter       (D_stall_counter),
+                         .D_to_MEM_forwardSignal(D_to_MEM_forwardSignal),   //forward
+                         .MEM_ALUresult         (MEM_ALUresult),            //forward 
+
                          .test_address_register (test_address_register),
                          //OUTPUT
                          .D_instruction         (D_instruction),
@@ -434,6 +437,8 @@ module decode_stage (
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
     input [1:0]       D_stall_counter,
+    input [31:0]      MEM_ALUresult,    //forward
+    input [1:0]       D_to_MEM_forwardSignal,
 
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
@@ -450,6 +455,9 @@ module decode_stage (
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
        
 );
+    wire [31:0] operand1;
+    wire [31:0] operand2;
+
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
@@ -491,11 +499,14 @@ module decode_stage (
                  .test_address_register (test_address_register), //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
                  //OUTPUT
-                 .REG_data_out1   (D_REG_data_out1), //giá trị rs đ�?c được để đưa vào tính toán
-                 .REG_data_out2   (D_REG_data_out2), //giá trị rt đ�?c được để đưa vào tính toán
+                 .REG_data_out1   (operand1), //giá trị rs đ�?c được để đưa vào tính toán
+                 .REG_data_out2   (operand2), //giá trị rt đ�?c được để đưa vào tính toán
                  .test_value_register (test_value_register)
                  );
     assign D_isEqual_onBranch = (D_REG_data_out1 == D_REG_data_out2);
+    
+    assign D_REG_data_out1 = (D_to_MEM_forwardSignal[1]) ? MEM_ALUresult : operand1;    //choose betwwen forward from MEM or not
+    assign D_REG_data_out2 = (D_to_MEM_forwardSignal[0]) ? MEM_ALUresult : operand2;
 endmodule
 
 
