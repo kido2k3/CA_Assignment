@@ -51,6 +51,7 @@ module system(
     //data hazard
     reg [1:0] EX_to_MEM_forwardSignal;
     reg [1:0] EX_to_WB_forwardSignal;
+    reg [1:0] D_to_MEM_forwardSignal;
 
     reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
 
@@ -105,7 +106,7 @@ module system(
             if      (!D_instruction[31:28]) //R
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
 
@@ -114,7 +115,7 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
             end
@@ -128,7 +129,7 @@ module system(
             if      (!D_instruction[31:28]) //R
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
 
@@ -138,7 +139,7 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 3;
+                    D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
             end
@@ -149,6 +150,71 @@ module system(
 
         else
             D_stall_counter <= D_stall_counter;
+    end
+
+    //detect and forward from MEM stage to DECODE stage
+    always @(MEM_instruction, D_instruction)
+    begin
+        if (!MEM_instruction || !D_instruction) //nothing
+            D_to_MEM_forwardSignal <= D_to_MEM_forwardSignal;
+
+        else if (!MEM_instruction[31:28])     //lenh trong MEM la lenh R)
+        begin
+            if      (!D_instruction[31:28]) //R
+            begin
+                if (MEM_instruction[15:11] ==D_instruction[25:21]) //rd == rs
+                    D_to_MEM_forwardSignal[1] <= 1'b1;
+                else
+                    D_to_MEM_forwardSignal[1] <= 1'b0;
+
+                if (MEM_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                    D_to_MEM_forwardSignal[0] <= 1'b1;
+                else
+                    D_to_MEM_forwardSignal[0] <= 1'b0;                   //khong forward
+            end
+            
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (MEM_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                else
+                    D_to_MEM_forwardSignal[1] <= 1'b0;
+            end
+
+            else
+                D_to_MEM_forwardSignal <= 2'b00;
+        end
+    
+        else if (MEM_instruction[31:26] == 6'b001000) //neu lenh trong MEM la addi
+        begin
+            if      (!D_instruction[31:28]) //R
+            begin
+                if (MEM_instruction[20:16] == D_instruction[25:21]) //rt == rs
+                    D_to_MEM_forwardSignal[1] <= 1'b1;
+                else
+                    D_to_MEM_forwardSignal[1] <= 1'b0;
+
+                if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                    D_to_MEM_forwardSignal[0] <= 1'b1;
+                else
+                    D_to_MEM_forwardSignal[0] <= 1'b0;
+            end
+            
+
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (MEM_instruction[20:16] == D_instruction[25:21])   //rd == rs
+                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                else
+                    D_to_MEM_forwardSignal[1] <= 1'b0;
+            end
+            
+            else
+                D_to_MEM_forwardSignal <= 2'b00;   //nothing
+        end
+
+        else
+            D_to_MEM_forwardSignal <= 2'b00;
     end
 
 
