@@ -114,7 +114,7 @@ module system(
     //detection data hazard between EX and Decode stage
     always @(D_instruction, EX_instruction)
     begin
-        if (!EX_instruction)  //dothing if nop
+        if (!EX_instruction || !D_instruction)  //dothing if nop
             D_stall_counter <= D_stall_counter;
 
         else if (!D_instruction[31:28])     //lenh trong D la lenh R)
