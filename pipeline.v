@@ -100,7 +100,7 @@ module system(
         if (!EX_instruction || !D_instruction)  //dothing if nop
             D_stall_counter <= D_stall_counter;
 
-        else if (!E_instruction[31:28])     //lenh trong EX la lenh R)
+        else if (!EX_instruction[31:28])     //lenh trong EX la lenh R)
         begin
             if      (!D_instruction[31:28]) //R
             begin
