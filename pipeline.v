@@ -28,7 +28,7 @@ module system(
     initial
     begin
         test_address_register = 8;
-        $monitor("time = %d, PC =%h, D_instruction = %h, EX_instruction = %h, D_stall_counter = %d, MEM_instruction = %h, WB_instruction = %h , MEM_ALUresult = %d, D_to_MEM_forwardSignal = %b", $time, PC, D_instruction, EX_instruction, D_stall_counter, MEM_instruction, WB_instruction, MEM_ALUresult, D_to_MEM_forwardSignal);
+        // $monitor("time = %d, PC =%h, D_instruction = %h, EX_instruction = %h, D_stall_counter = %d, MEM_instruction = %h, WB_instruction = %h , MEM_ALUresult = %d, D_to_MEM_forwardSignal = %b", $time, PC, D_instruction, EX_instruction, D_stall_counter, MEM_instruction, WB_instruction, MEM_ALUresult, D_to_MEM_forwardSignal);
     end
 
     initial 
