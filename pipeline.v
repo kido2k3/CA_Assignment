@@ -3,17 +3,34 @@
 //chưa làm theo yêu cầu cơ bản của đ�? thầy
 
 module system(
-    input   SYS_clk,
-    input   SYS_reset
+
     // input SYS_load,
     // input [7:0] SYS_pc_val,
     // input [7 :0] SYS_output_sel,
     // output[26:0] SYS_leds,
 
+    output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 );
     reg [4:0] test_address_register; //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
-    wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+    reg SYS_clk;
+    reg SYS_reset;
+    initial
+    begin
+         //kiểm tra giá trị thanh ghi số 8
+        SYS_reset = 0;
+        #2 SYS_reset = 1;
+        #3 SYS_reset = 0;
 
+        SYS_clk=0;
+        forever #5 SYS_clk =~ SYS_clk;
+    end  
+
+    initial
+    begin
+        test_address_register = 10;
+        $monitor("PC =%h, D_instruction = %h, test_address_register = %d, test_value_register = %d", PC, D_instruction, test_address_register, test_value_register);
+    end
+    
     //FETCH stage OK
     wire [10:0] D_control_signal;       //OK
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
@@ -50,10 +67,10 @@ module system(
 
     //DECODE stage
     wire [31:0] D_instruction;          //OK, fixed
-    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm th�?i là đúng
-    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm th�?i là đúng    
+    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm th�?i là đúng
+    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm th�?i là đúng    
     wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
-    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
+    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
