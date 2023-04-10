@@ -4,7 +4,7 @@
 
 module system(
     input   SYS_clk,
-    input   SYS_reset,
+    input   SYS_reset
     // input SYS_load,
     // input [7:0] SYS_pc_val,
     // input [7 :0] SYS_output_sel,
@@ -50,10 +50,10 @@ module system(
 
     //DECODE stage
     wire [31:0] D_instruction;          //OK, fixed
-    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm thời là đúng
-    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm thời là đúng    
+    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm th�?i là đúng
+    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm th�?i là đúng    
     wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
-    wire [31:0] D_Out_SignedExtended;   //tạm thời ok, trong trường hợp đơn giản
+    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
@@ -93,6 +93,8 @@ module system(
                         .D_REG_data_out2        (D_REG_data_out2),
                         .D_write_register       (D_write_register),
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
+                        .MEM_ALUresult          (MEM_ALUresult),            //forward
+                        .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
                         //OUTPUT
                         .EX_instruction         (EX_instruction), 
                         .EX_control_signal      (EX_control_signal),
@@ -137,6 +139,67 @@ module system(
                 .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
                 .WB_write_register  (WB_write_register)     //ok
                 );
+
+
+    //data hazard
+    reg [1:0] EX_to_MEM_forwardSignal;
+
+    always @(MEM_instruction, EX_instruction)
+    begin
+        if (!MEM_instruction[31:28])     //lenh trong MEM la lenh R)
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if      (MEM_instruction[15:11] == EX_instruction[25:21]) //rd == rs
+                    EX_to_MEM_forwardSignal <= 2'b10;
+                else if (MEM_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                    EX_to_MEM_forwardSignal <= 2'b01;
+                else
+                    EX_to_MEM_forwardSignal <= 2'b00;                   //khong forward
+            end
+
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (MEM_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                    EX_to_MEM_forwardSignal <= 2'b10;                      
+                else
+                    EX_to_MEM_forwardSignal <= 2'b00;
+            end
+
+            else
+                EX_to_MEM_forwardSignal <= 2'b00;
+        end
+
+        else if (MEM_instruction[31:26] == 6'b001000) //neu lenh trong MEM la addi
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if      (MEM_instruction[20:16] == EX_instruction[25:21]) //rt == rs
+                    EX_to_MEM_forwardSignal <= 2'b10;
+                else if (MEM_instruction[20:16] == EX_instruction[20:16]) //rt == rt
+                    EX_to_MEM_forwardSignal <= 2'b01;
+                else
+                    EX_to_MEM_forwardSignal <= 2'b00;
+            end
+
+
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (MEM_instruction[20:16] == EX_instruction[25:21])   //rd == rs
+                    EX_to_MEM_forwardSignal <= 2'b10;                      
+                else
+                    EX_to_MEM_forwardSignal <= 2'b00;
+            end
+
+            else
+                EX_to_MEM_forwardSignal <= 2'b00;   //nothing
+        end
+
+        else
+            EX_to_MEM_forwardSignal <= 2'b00;
+    end
+
+
 endmodule
 
 
@@ -215,6 +278,8 @@ module execution_stage (
     input      [31:0] D_REG_data_out2,
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
+    input      [31:0] MEM_ALUresult,            //forward
+    input      [1:0]  EX_to_MEM_forwardSignal,  //forward
 
     output reg [31:0] EX_instruction, 
     output reg [10:0] EX_control_signal,
@@ -256,11 +321,15 @@ module execution_stage (
                      .funct       (EX_instruction   [5:0]), //input
                      .control_out (alu_control      [3:0]) //output
                     );
-    assign ALUSRC[31:0] = (EX_control_signal[2])?
-                          EX_Out_SignedExtended[31:0] : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+    assign ALUSRC[31:0] = (EX_control_signal[2])             ? EX_Out_SignedExtended[31:0] : 
+                          (EX_to_MEM_forwardSignal == 2'b01) ? MEM_ALUresult               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+    
+    wire [31:0] rs;
+    assign rs = (EX_to_MEM_forwardSignal == 2'b10) ?  MEM_ALUresult : EX_operand1;//decide to forward
+
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
-                      .a            (EX_operand1[31:0]), //rs in
+                      .a            (rs), //rs in
                       .b            (ALUSRC[31:0]),       //rt or imm
                       //OUTPUT
                       .result_out   (EX_ALUresult[31:0]),
