@@ -15,11 +15,40 @@ module system(
     wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 
     //FETCH stage OK
+    reg [31:0] PC;
+    wire [31:0] F_instruction;
+
+    //DECODE stage
+    wire [31:0] D_instruction;          //OK, fixed
+    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm th�?i là đúng
+    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm th�?i là đúng    
+    wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
+    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
     wire [10:0] D_control_signal;       //OK
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
     wire [31:0] D_PC;
+    
+    //EXECUTION stage
+    wire [31:0] EX_instruction;     //OK
+    wire [4:0]  EX_write_register;  //OK
+    wire [10:0] EX_control_signal;  //OK, như đặc tả
+    wire [31:0] EX_ALUresult;       //OK   
+    wire [31:0] EX_operand2;
 
-    reg [31:0] PC;
+    //MEMORY stage
+    wire [10:0] MEM_control_signal; //ok
+    wire [31:0] MEM_ALUresult;      //OK
+    wire [31:0] MEM_read_data;      //OK
+    wire [4:0]  MEM_write_register; //OK
+    wire [31:0] MEM_instruction;    //OK, 
+
+    //Write Back stage
+    wire        WB_RegWrite_signal;
+    wire [4:0]  WB_write_register;
+    wire [31:0] WB_write_data;
+
+    //data hazard
+    reg [1:0] EX_to_MEM_forwardSignal;
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
@@ -45,18 +74,9 @@ module system(
         end
     end
 
-    wire [31:0] F_instruction;
     IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
-    //DECODE stage
-    wire [31:0] D_instruction;          //OK, fixed
-    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai, tạm th�?i là đúng
-    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai, tạm th�?i là đúng    
-    wire [4:0]  D_write_register;       //OK, đúng cho cả addi và lw
-    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
-    wire        WB_RegWrite_signal;
-    wire [4:0]  WB_write_register;
-    wire [31:0] WB_write_data;
+
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
@@ -78,12 +98,7 @@ module system(
                          .D_isEqual_onBranch    (D_isEqual_onBranch)
                         );
 
-    //EXECUTION stage
-    wire [31:0] EX_instruction;     //OK
-    wire [4:0]  EX_write_register;  //OK
-    wire [10:0] EX_control_signal;  //OK, như đặc tả
-    wire [31:0] EX_ALUresult;       //OK   
-    wire [31:0] EX_operand2;
+
     execution_stage EX(//INPUT
                         .SYS_clk                (SYS_clk),
                         .SYS_reset              (SYS_reset),
@@ -103,12 +118,7 @@ module system(
                         .EX_write_register      (EX_write_register)
                       );
 
-    //MEMORY stage
-    wire [10:0] MEM_control_signal; //ok
-    wire [31:0] MEM_ALUresult;      //OK
-    wire [31:0] MEM_read_data;      //OK
-    wire [4:0]  MEM_write_register; //OK
-    wire [31:0] MEM_instruction;    //OK, 
+
     memory_stage MEM  (//INPUT
                         .SYS_clk            (SYS_clk),
                         .SYS_reset          (SYS_reset),
@@ -125,7 +135,6 @@ module system(
                         .MEM_instruction    (MEM_instruction)
                       );
 
-    //Write Back stage
     
     WB_stage WB (//INPUT
                 .SYS_clk            (SYS_clk),
@@ -141,8 +150,6 @@ module system(
                 );
 
 
-    //data hazard
-    reg [1:0] EX_to_MEM_forwardSignal;
 
     always @(MEM_instruction, EX_instruction)
     begin
