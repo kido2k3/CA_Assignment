@@ -29,8 +29,8 @@ input [31:0] REG_data_wb_in1,
 input clk,
 input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
-output[31:0] REG_data_out1, 
-output[31:0] REG_data_out2,
+output reg [31:0] REG_data_out1, 
+output reg [31:0] REG_data_out2,
 output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
     );
     reg [31:0] register [0:31];
@@ -40,8 +40,31 @@ output [31:0] test_value_register          //chỉ dành cho test, test xong xó
         for(i = 0; i<32 ; i=i+1)
         register[i] = 32'b0;
         end
-    assign REG_data_out1 = register[REG_address1];
-    assign REG_data_out2 = register[REG_address2];
+
+    always @(REG_address1, REG_address2, REG_address_wr, REG_write_1, REG_data_wb_in1)
+    begin
+        if (REG_address1 == REG_address_wr)
+        begin
+            if (REG_write_1)
+                REG_data_out1 <= REG_data_wb_in1;
+            else
+                REG_data_out1 <= register[REG_address1];
+        end
+        else
+            REG_data_out1 <= register[REG_address1];
+
+        if (REG_address2 == REG_address_wr)
+        begin
+            if (REG_write_1)
+                REG_data_out1 <= REG_data_wb_in1;
+            else
+                REG_data_out2 <= register[REG_address2];
+        end
+        else
+            REG_data_out2 <= register[REG_address2];
+    end
+
+
     //always @(posedge clk)
     always @(posedge clk)
     begin 
