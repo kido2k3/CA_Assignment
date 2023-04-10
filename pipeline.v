@@ -63,9 +63,11 @@ module system(
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
+    wire [31:0] WB_instruction;
 
     //data hazard
     reg [1:0] EX_to_MEM_forwardSignal;
+    reg [1:0] EX_to_WB_forwardSignal;
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
@@ -126,6 +128,8 @@ module system(
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
                         .MEM_ALUresult          (MEM_ALUresult),            //forward
                         .EX_to_MEM_forwardSignal(EX_to_MEM_forwardSignal),  //forward
+                        .WB_write_data          (WB_write_data),            //forward data from WB to EX
+                        .EX_to_WB_forwardSignal (EX_to_WB_forwardSignal),   //forward signal
                         //OUTPUT
                         .EX_instruction         (EX_instruction), 
                         .EX_control_signal      (EX_control_signal),
@@ -159,14 +163,16 @@ module system(
                 .MEM_read_data      (MEM_read_data),
                 .MEM_ALUresult      (MEM_ALUresult),
                 .MEM_write_register (MEM_write_register),
+                .MEM_instruction    (MEM_instruction),
                 //OUTPUT
+                .WB_instruction     (WB_instruction),
                 .WB_write_data      (WB_write_data),        //OK
                 .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
                 .WB_write_register  (WB_write_register)     //ok
                 );
 
 
-
+    //detect and forward from MEM stage to EX stage
     always @(MEM_instruction, EX_instruction)
     begin
         if (!MEM_instruction[31:28])     //lenh trong MEM la lenh R)
@@ -180,7 +186,7 @@ module system(
                 else
                     EX_to_MEM_forwardSignal <= 2'b00;                   //khong forward
             end
-
+            
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if      (MEM_instruction[15:11] == EX_instruction[25:21])   //rd == rs
@@ -192,7 +198,7 @@ module system(
             else
                 EX_to_MEM_forwardSignal <= 2'b00;
         end
-
+    
         else if (MEM_instruction[31:26] == 6'b001000) //neu lenh trong MEM la addi
         begin
             if      (!EX_instruction[31:28]) //R
@@ -204,7 +210,7 @@ module system(
                 else
                     EX_to_MEM_forwardSignal <= 2'b00;
             end
-
+            
 
             else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
             begin
@@ -213,13 +219,69 @@ module system(
                 else
                     EX_to_MEM_forwardSignal <= 2'b00;
             end
-
+            
             else
                 EX_to_MEM_forwardSignal <= 2'b00;   //nothing
         end
 
         else
             EX_to_MEM_forwardSignal <= 2'b00;
+    end
+
+    //detect and forward from WB stage to EX stage
+    always @(WB_instruction, EX_instruction)
+    begin
+        if (!WB_instruction[31:28])     //lenh trong WB la lenh R)
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if      (WB_instruction[15:11] == EX_instruction[25:21]) //rd == rs
+                    EX_to_WB_forwardSignal <= 2'b10;
+                else if (WB_instruction[15:11] == EX_instruction[20:16]) //rd == rt
+                    EX_to_WB_forwardSignal <= 2'b01;
+                else
+                    EX_to_WB_forwardSignal <= 2'b00;                   //khong forward
+            end
+            
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (WB_instruction[15:11] == EX_instruction[25:21])   //rd == rs
+                    EX_to_WB_forwardSignal <= 2'b10;                      
+                else
+                    EX_to_WB_forwardSignal <= 2'b00;
+            end
+
+            else
+                EX_to_WB_forwardSignal <= 2'b00;
+        end
+    
+        else if (WB_instruction[31:26] == 6'b001000) //neu lenh trong WB la addi
+        begin
+            if      (!EX_instruction[31:28]) //R
+            begin
+                if      (WB_instruction[20:16] == EX_instruction[25:21]) //rt == rs
+                    EX_to_WB_forwardSignal <= 2'b10;
+                else if (WB_instruction[20:16] == EX_instruction[20:16]) //rt == rt
+                    EX_to_WB_forwardSignal <= 2'b01;
+                else
+                    EX_to_WB_forwardSignal <= 2'b00;
+            end
+            
+
+            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if      (WB_instruction[20:16] == EX_instruction[25:21])   //rd == rs
+                    EX_to_WB_forwardSignal <= 2'b10;                      
+                else
+                    EX_to_WB_forwardSignal <= 2'b00;
+            end
+            
+            else
+                EX_to_WB_forwardSignal <= 2'b00;   //nothing
+        end
+
+        else
+            EX_to_WB_forwardSignal <= 2'b00;
     end
 
 
@@ -303,6 +365,8 @@ module execution_stage (
     input      [31:0] D_Out_SignedExtended,
     input      [31:0] MEM_ALUresult,            //forward
     input      [1:0]  EX_to_MEM_forwardSignal,  //forward
+    input      [31:0] WB_write_data,            //forward
+    input      [1:0]  EX_to_WB_forwardSignal,   //forward
 
     output reg [31:0] EX_instruction, 
     output reg [10:0] EX_control_signal,
@@ -345,10 +409,12 @@ module execution_stage (
                      .control_out (alu_control      [3:0]) //output
                     );
     assign ALUSRC[31:0] = (EX_control_signal[2])             ? EX_Out_SignedExtended[31:0] : 
-                          (EX_to_MEM_forwardSignal == 2'b01) ? MEM_ALUresult               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+                          (EX_to_MEM_forwardSignal == 2'b01) ? MEM_ALUresult               :
+                          (EX_to_WB_forwardSignal ==  2'b01) ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
     
     wire [31:0] rs;
-    assign rs = (EX_to_MEM_forwardSignal == 2'b10) ?  MEM_ALUresult : EX_operand1;//decide to forward
+    assign rs = (EX_to_MEM_forwardSignal == 2'b10) ?  MEM_ALUresult : 
+                (EX_to_WB_forwardSignal  == 2'b10) ?  WB_write_data :  EX_operand1;//decide to forward
 
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
@@ -420,10 +486,12 @@ module WB_stage (
     input      [31:0] MEM_read_data,
     input      [31:0] MEM_ALUresult,
     input      [4:0]  MEM_write_register,
+    input      [31:0] MEM_instruction, 
 
     output     [31:0] WB_write_data,
     output            WB_RegWrite_signal,
-    output reg [4:0]  WB_write_register
+    output reg [4:0]  WB_write_register,
+    output reg [31:0] WB_instruction
 );
     reg [10:0] WB_control_signal;
     reg [31:0] WB_read_data;
@@ -437,6 +505,7 @@ module WB_stage (
             WB_read_data      <= 0;
             WB_ALUresult      <= 0;
             WB_write_register <= 0;
+            WB_instruction    <= 0;
         end
         
         else
@@ -445,6 +514,7 @@ module WB_stage (
             WB_read_data      <= MEM_read_data;
             WB_ALUresult      <= MEM_ALUresult;
             WB_write_register <= MEM_write_register;
+            WB_instruction    <= MEM_instruction;
         end
     end
 
