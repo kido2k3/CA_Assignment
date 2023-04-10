@@ -135,7 +135,7 @@ module system(
             if      (!D_instruction[31:28]) //R
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 2'b2;
+                    D_stall_counter <= 2'd2;
                 else
                     D_stall_counter <= D_stall_counter;
 
@@ -145,7 +145,7 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 2'b2;
+                    D_stall_counter <= 2'd2;
                 else
                     D_stall_counter <= D_stall_counter;
             end
@@ -153,7 +153,7 @@ module system(
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall_counter <= 2'b2;
+                    D_stall_counter <= 2'd2;
                 else
                     D_stall_counter <= D_stall_counter;
             end
