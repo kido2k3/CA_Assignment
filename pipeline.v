@@ -117,61 +117,54 @@ module system(
         if (!EX_instruction || !D_instruction)  //dothing if nop
             D_stall_counter <= D_stall_counter;
 
-        else if (!D_instruction[31:28])     //lenh trong D la lenh R)
+        else if (!E_instruction[31:28])     //lenh trong EX la lenh R)
         begin
-            if      (!EX_instruction[31:28]) //R
+            if      (!D_instruction[31:28]) //R
             begin
-                if (D_instruction[15:11] == EX_instruction[25:21] || D_instruction[15:11] == EX_instruction[20:16] ) //rd == rs or rt
-                    //stall
+                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
                     D_stall_counter <= 3;
-                
-                else //do nothing
+                else
                     D_stall_counter <= D_stall_counter;
+
             end
             
-            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
-                if (D_instruction[15:11] == EX_instruction[25:21])   //rd == rs
-                    //stall
+                if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
                     D_stall_counter <= 3;
-                else //do nothing
+                else
                     D_stall_counter <= D_stall_counter;
-                
             end
 
-            else //do nothing
+            else
                 D_stall_counter <= D_stall_counter;
         end
     
-        else if (D_instruction[31:26] == 6'b001000) //neu lenh trong D la addi
+        else if (EX_instruction[31:26] == 6'b001000) //neu lenh trong EX la addi
         begin
-            if      (!EX_instruction[31:28]) //R
+            if      (!D_instruction[31:28]) //R
             begin
-                if (D_instruction[20:16] == EX_instruction[25:21] || D_instruction[20:16] == EX_instruction[20:16]) //rt == rs or rt
-                    //stall
+                if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
                     D_stall_counter <= 3;
-                
-                else //do nothing
+                else
                     D_stall_counter <= D_stall_counter;
+
             end
             
 
-            else if (EX_instruction[31:28] == 4'b1000 || EX_instruction[31:26] == 6'b001000 || EX_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
-                if (D_instruction[20:16] == EX_instruction[25:21])   //rd == rs
-                    //stall
+                if (EX_instruction[20:16] == D_instruction[25:21])   //rd == rs
                     D_stall_counter <= 3;
-                
-                else //do nothing
+                else
                     D_stall_counter <= D_stall_counter;
             end
             
-            else //do nothing
+            else
                 D_stall_counter <= D_stall_counter;
-            
         end
 
-        else //do nothing
+        else
             D_stall_counter <= D_stall_counter;
     end
 
