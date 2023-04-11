@@ -366,7 +366,7 @@ module system(
                 .WB_write_data      (WB_write_data),        //OK
                 .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
                 .WB_write_register  (WB_write_register),     //ok
-                .WB_exception_singal(MEM_exception_singal),
+                .WB_exception_singal(WB_exception_singal),
                 .WB_PC              (WB_PC)
                 );
 
