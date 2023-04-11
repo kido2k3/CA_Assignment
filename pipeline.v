@@ -75,7 +75,7 @@ module system(
             if      (D_stall_counter)  //khong lam gi neu dang co stall
                 PC <= PC;
             else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
-                PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
+                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
 
             else if (D_control_signal[10])  //lệnh jump
                 PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
