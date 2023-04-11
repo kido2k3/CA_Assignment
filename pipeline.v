@@ -463,10 +463,6 @@ module execution_stage (
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
     input      [1:0]  D_stall_counter, 
-    // input      [31:0] MEM_ALUresult,            //forward
-    // input      [1:0]  EX_to_MEM_forwardSignal,  //forward
-    // input      [31:0] WB_write_data,            //forward
-    // input      [1:0]  EX_to_WB_forwardSignal,   //forward
 
     output reg [31:0] EX_instruction, 
     output reg [10:0] EX_control_signal,
@@ -508,14 +504,9 @@ module execution_stage (
                      .funct       (EX_instruction   [5:0]), //input
                      .control_out (alu_control      [3:0]) //output
                     );
-    // assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
-    //                       (EX_to_MEM_forwardSignal[0]) ? MEM_ALUresult               :
-    //                       (EX_to_WB_forwardSignal[0])  ? WB_write_data               : EX_operand2[31:0]; //quyết định ch�?n trư�?ng nhập vào ALU tùy theo R hay I
+
     assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : EX_operand2[31:0];
 
-    // wire [31:0] rs;
-    // assign rs = (EX_to_MEM_forwardSignal[1] ) ?  MEM_ALUresult : 
-    //             (EX_to_WB_forwardSignal[1]  ) ?  WB_write_data :  EX_operand1;//decide to forward
 
     ALU         alu1 (//INPUT
                       .control      (alu_control[3:0]),
