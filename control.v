@@ -82,7 +82,7 @@ module control(
             end
         end
 
-        else if(opcode==6'b000100) // beq
+        else if(opcode==6'h4 || opcode == 6'h5) // beq and bne
             control_signal[10:0] = 11'b01000010000;
             
         else if(opcode==6'b001000) // addi
