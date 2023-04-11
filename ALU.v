@@ -131,7 +131,7 @@ output [7:0] status_out
             status[6] = 1'b0;
             status[4] = result[31];
             status[5] = 1'b0;
-            status[3] = (result%2) ? 1'b1 : 1'b0;
+            status[3] = (result%4) ? 1'b1 : 1'b0; //không align word
             status[2] = 1'b0;
             mul_ALU = 0;
             end
