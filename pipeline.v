@@ -36,7 +36,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, PC =%h, MEM_instruction = %h, D_exception_singal = %b,  EX_exception_singal = %b, MEM_exception_singal = %b, WB_exception_singal = %b,address = %d has value = %d",$time, PC, MEM_instruction, D_exception_singal, EX_exception_singal, MEM_exception_singal, WB_exception_singal, test_address_register, test_value_register);
+        $monitor("time = %d, PC =%h, MEM_instruction = %h, D_exception_singal = %b,  EX_exception_singal = %b, MEM_exception_singal = %b,  WB_exception_singal = %b, interrupt_signal = %b, address = %d has value = %d",$time, PC, MEM_instruction, D_exception_singal, EX_exception_singal, MEM_exception_singal, WB_exception_singal, interrupt_signal, test_address_register, test_value_register);
     end
 
     initial 
