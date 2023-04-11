@@ -59,7 +59,7 @@ module system(
     begin
         if (SYS_reset)
         begin
-            PC                  <= 0;
+            PC                  <= 'h00400000;
             D_stall_counter     <= 0;
         end
 
