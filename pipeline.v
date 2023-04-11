@@ -28,13 +28,13 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("PC =%h, D_instruction = %h, D_stall_counter = %b, branch_taken = %b", PC, D_instruction, D_stall_counter,  branch_taken);
+        $monitor("time = %d, PC =%h, D_instruction = %h, D_stall_counter = %b, branch_taken = %b, test_address_register = %d, test_value_register = %d",$time, PC, D_instruction, D_stall_counter,  branch_taken, test_address_register, test_value_register);
     end
 
     initial 
     begin
         #180;
-        $display ("time = %d, test_address_register = %d, test_value_register = %d", $time, test_address_register, test_value_register);
+        // $display ("time = %d, ", $time, );
     end
     
     //FETCH stage OK
