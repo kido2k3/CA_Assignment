@@ -15,7 +15,7 @@ module ALU_control(
             2'bx1: control_out <= 4'b0110;
             2'b1x: casex (funct[3:0])
                     4'b0000: control_out <= 4'b0010;
-                    4'b0010: control_out <= 4'b0110;
+                    4'b0010: control_out <= 4'b0110;    //mul
                     4'b0100: control_out <= 4'b0000;
                     4'b0101: control_out <= 4'b0001;
                     4'b1010: control_out <= 4'b0111;
