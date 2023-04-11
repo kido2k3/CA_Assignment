@@ -2,6 +2,14 @@
 //chỉ là kiến trúc cơ bản chỉ có lệnh R
 //chưa làm theo yêu cầu cơ bản của đ�? thầy
 
+// danh sách các exception
+// không xác định được lệnh -> decode stage -> 001
+// ghi vào zero             -> WB           -> 100
+// địa chỉ không align      -> MEM          
+// tràn số                  -> EXE ALU
+// chia cho 0               -> EXE ALU
+
+
 module system(
     input   SYS_clk,
     input   SYS_reset
@@ -35,6 +43,9 @@ module system(
     wire [10:0] EX_control_signal;  //OK, như đặc tả
     wire [31:0] EX_ALUresult;       //OK   
     wire [31:0] EX_operand2;
+    wire [31:0] EX_PC;
+    wire EX_non_align_word;
+
 
     //MEMORY stage
     wire [10:0] MEM_control_signal; //ok
@@ -42,22 +53,31 @@ module system(
     wire [31:0] MEM_read_data;      //OK
     wire [4:0]  MEM_write_register; //OK
     wire [31:0] MEM_instruction;    //OK, 
+    wire [31:0] MEM_PC;
 
     //Write Back stage
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
     wire [31:0] WB_instruction;
+    wire [31:0] WB_PC;
+
+    //for exception
+    wire [31:0] EPC;
+    wire interrupt_signal;
 
     //data hazard
     reg [1:0] D_to_MEM_forwardSignal;
 
     reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
 
+    //exception detection
+    wire [2:0] D_exception_singal, EX_exception_singal, MEM_exception_singal, WB_exception_singal;
 
-    always @(negedge SYS_clk, posedge SYS_reset)
+
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset)
+        if (SYS_reset || interrupt_signal)
         begin
             PC                  <= 'h00400000;
             D_stall_counter     <= 0;
@@ -261,6 +281,7 @@ module system(
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
                          .SYS_reset             (SYS_reset),
+                         .interrupt_signal      (interrupt_signal),
                          .F_instruction         (F_instruction),
                          .F_PC                  (PC),
                          .WB_RegWrite_signal    (WB_RegWrite_signal),
@@ -272,21 +293,22 @@ module system(
 
                          .test_address_register (test_address_register),
                          //OUTPUT
-                         .D_instruction         (D_instruction),
-                         .D_control_signal      (D_control_signal),
+                         .D_exception_instruction   (D_instruction),
+                         .D_exception_control_signal(D_control_signal),
                          .D_REG_data_out1       (D_REG_data_out1),
                          .D_REG_data_out2       (D_REG_data_out2),
                          .D_write_register      (D_write_register),
                          .D_Out_SignedExtended  (D_Out_SignedExtended),
                          .test_value_register   (test_value_register),
                          .D_PC                  (D_PC),
-                         .branch_taken          (branch_taken)   
+                         .branch_taken          (branch_taken),
+                         .D_exception_singal    (D_exception_singal)
                         );
-
 
     execution_stage EX(//INPUT
                         .SYS_clk                (SYS_clk),
                         .SYS_reset              (SYS_reset),
+                        .interrupt_signal       (interrupt_signal),
                         .D_instruction          (D_instruction),
                         .D_control_signal       (D_control_signal),
                         .D_REG_data_out1        (D_REG_data_out1),
@@ -294,46 +316,69 @@ module system(
                         .D_write_register       (D_write_register),
                         .D_Out_SignedExtended   (D_Out_SignedExtended),
                         .D_stall_counter        (D_stall_counter),
+                        .D_exception_singal     (D_exception_singal),
+                        .D_PC                   (D_PC),
                         //OUTPUT
-                        .EX_instruction         (EX_instruction), 
-                        .EX_control_signal      (EX_control_signal),
+                    .EX_exception_instruction   (EX_instruction), 
+                    .EX_exception_control_signal(EX_control_signal),
                         .EX_ALUresult           (EX_ALUresult),
                         .EX_operand2            (EX_operand2),
-                        .EX_write_register      (EX_write_register)
+                        .EX_write_register      (EX_write_register),
+                        .EX_exception_singal    (EX_exception_singal),
+                        .EX_PC                  (EX_PC),
+                        .EX_non_align_word      (EX_non_align_word)
                       );
-
 
     memory_stage MEM  (//INPUT
                         .SYS_clk            (SYS_clk),
                         .SYS_reset          (SYS_reset),
+                        .interrupt_signal   (interrupt_signal),
                         .EX_instruction     (EX_instruction),
                         .EX_write_register  (EX_write_register),
                         .EX_control_signal  (EX_control_signal),
                         .EX_ALUresult       (EX_ALUresult),
                         .EX_operand2        (EX_operand2),
+                        .EX_exception_singal(EX_exception_singal),
+                        .EX_non_align_word  (EX_non_align_word),
+                        .EX_PC              (EX_PC),
                         //OUTPUT
-                        .MEM_control_signal (MEM_control_signal),
+              .MEM_exception_control_signal (MEM_control_signal),
                         .MEM_ALUresult      (MEM_ALUresult),
                         .MEM_read_data      (MEM_read_data),
                         .MEM_write_register (MEM_write_register),
-                        .MEM_instruction    (MEM_instruction)
+                 .MEM_exception_instruction (MEM_instruction),
+                       .MEM_exception_singal(MEM_exception_singal)
                       );
 
-    
     WB_stage WB (//INPUT
                 .SYS_clk            (SYS_clk),
                 .SYS_reset          (SYS_reset),
+                .interrupt_signal   (interrupt_signal),
                 .MEM_control_signal (MEM_control_signal),
                 .MEM_read_data      (MEM_read_data),
                 .MEM_ALUresult      (MEM_ALUresult),
                 .MEM_write_register (MEM_write_register),
                 .MEM_instruction    (MEM_instruction),
+               .MEM_exception_singal(MEM_exception_singal),
+                .MEM_PC             (MEM_PC),
                 //OUTPUT
                 .WB_instruction     (WB_instruction),
                 .WB_write_data      (WB_write_data),        //OK
                 .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
-                .WB_write_register  (WB_write_register)     //ok
+                .WB_write_register  (WB_write_register),     //ok
+                .WB_exception_singal(MEM_exception_singal),
+                .WB_PC              (WB_PC)
                 );
+
+    exception_handle interrupt(
+        //INPUT
+        .SYS_reset              (SYS_reset),
+        .WB_exception_singal    (WB_exception_singal),
+        .WB_PC                  (WB_PC),
+        //OUTPUT
+        .EPC                    (EPC),
+        .interrupt_signal       (interrupt_signal)
+    );
 endmodule
 
 
@@ -348,30 +393,33 @@ module decode_stage (
     input [1:0]       D_stall_counter,
     input [31:0]      MEM_ALUresult,    //forward
     input [1:0]       D_to_MEM_forwardSignal,
+    input             interrupt_signal,
 
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
-
-    output reg [31:0] D_instruction,    //lưu giữ instruction để handle được hazard
-    output     [10:0] D_control_signal, //cứ lưu giữ hết tất cả các tín hiệu control
+    wire       [31:0] D_exception_instruction,    //chọn lọc lại
+    wire       [10:0] D_exception_control_signal, //chọn lọc lại qua exception
     output     [31:0] D_REG_data_out1,
     output     [31:0] D_REG_data_out2,
     output     [4:0]  D_write_register,
     output     [31:0] D_Out_SignedExtended,
     output reg [31:0] D_PC,
     output            branch_taken,
+    output     [2:0]  D_exception_singal,
 
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
        
 );
+    reg  [31:0] D_instruction;    //lưu giữ instruction để handle được hazard, đây là tín hiệu được ban đầu nhưng output là thứ dã qua chọn lọc
+    wire [10:0] D_control_signal; //cứ lưu giữ hết tất cả các tín hiệu control
     wire [31:0] operand1;
     wire [31:0] operand2;
     wire        D_isEqual_onBranch;   //tín hiệu so sánh branch sớm được đưa lên decode stage
 
 
-    always @(negedge SYS_clk, posedge SYS_reset)
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset)
+        if (SYS_reset || interrupt_signal)
         begin
             D_instruction <= 0;
             D_PC          <= 0;
@@ -427,6 +475,10 @@ module decode_stage (
     assign D_isEqual_onBranch = (D_REG_data_out1 == D_REG_data_out2);
     assign branch_taken = D_control_signal[9] && ((D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch) || 
                                                   (D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch ));
+    
+    assign D_exception_singal         = (D_control_signal[3]) ? 3'b001 : 3'b0;
+    assign D_exception_instruction    = (D_exception_singal)  ? 32'b0  : D_instruction;       //chọn lọc lại, thứ được đưa ra ngoài là thứ đã được xử lý
+    assign D_exception_control_signal = (D_exception_singal)  ? 32'b0  : D_control_signal;    //chọn lọc lại, thứ được đưa ra ngoài là thứ đã được xử lý
 endmodule
 
 
@@ -440,23 +492,32 @@ module execution_stage (
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
     input      [1:0]  D_stall_counter, 
+    input      [2:0]  D_exception_singal,
+    input      [31:0] D_PC,
+    input             interrupt_signal,
 
-    output reg [31:0] EX_instruction, 
-    output reg [10:0] EX_control_signal,
+    output reg [31:0] EX_PC,
+    output            EX_non_align_word, //tín hiệu để giành cho MEM stage nếu đây là lệnh load hoặc store
+    output     [2:0]  EX_exception_singal,
+    output     [10:0] EX_exception_control_signal,
+    output     [31:0] EX_exception_instruction,
     output     [31:0] EX_ALUresult,
     output reg [31:0] EX_operand2,
     output reg [4:0]  EX_write_register  //để sử dụng ở WB
 
 );
+    reg [2:0]  pre_exception_singal;    //dùng để giữ tín hiệu exception ở câu lệnh trước, nhưng không phải thứ sẽ xuất ra
+    reg [31:0] EX_instruction;
+    reg [10:0] EX_control_signal;
     reg [31:0] EX_operand1;
     reg [31:0] EX_Out_SignedExtended;
 
     wire [3:0] alu_control;
     wire [31:0] ALUSRC;
-
-    always @(negedge SYS_clk, posedge SYS_reset)
+    wire [7:0] status_out;
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset || D_stall_counter)
+        if (SYS_reset || D_stall_counter || interrupt_signal)
         begin
             EX_instruction        <= 0;
             EX_control_signal     <= 0;
@@ -464,6 +525,8 @@ module execution_stage (
             EX_operand2           <= 0;
             EX_Out_SignedExtended <= 0;
             EX_write_register     <= 0;
+            pre_exception_singal  <= 0;
+            EX_PC                 <= 0;
         end
 
         else
@@ -474,6 +537,8 @@ module execution_stage (
             EX_operand2           <= D_REG_data_out2;
             EX_Out_SignedExtended <= D_Out_SignedExtended;
             EX_write_register     <= D_write_register;
+            pre_exception_singal  <= D_exception_singal;
+            EX_PC                 <= D_PC;
         end
     end
 
@@ -493,6 +558,14 @@ module execution_stage (
                       .result_out   (EX_ALUresult[31:0]),
                       .status_out   (status_out) //trạng thái của phép tín htrong alu
                      );
+
+    //xử lý exception
+    assign EX_exception_singal         = (pre_exception_singal)            ? pre_exception_singal :    //nếu ở trước có thì lấy ở trước
+                                         (status_out[2] ||  status_out[6]) ? 3'b010               : 3'b0;
+   
+    assign EX_exception_control_signal = (EX_exception_singal) ? 11'b0 : EX_control_signal;
+    assign EX_exception_instruction    = (EX_exception_singal) ? 32'b0 : EX_instruction;            //chọn lọc
+    assign EX_non_align_word           = status_out[3];
 endmodule
 
 
@@ -504,24 +577,38 @@ module memory_stage (
     input      [10:0] EX_control_signal,
     input      [31:0] EX_ALUresult,
     input      [31:0] EX_operand2,
+    input             EX_non_align_word,
+    input      [2:0]  EX_exception_singal,
+    input      [31:0] EX_PC,
+    input             interrupt_signal,
 
-    output reg [10:0] MEM_control_signal,
+    output reg [31:0] MEM_PC,
+    output     [2:0]  MEM_exception_singal,
+    output     [10:0] MEM_exception_control_signal,
     output reg [31:0] MEM_ALUresult,
     output     [31:0] MEM_read_data,
     output reg [4:0]  MEM_write_register,
-    output reg [31:0] MEM_instruction
+    output     [31:0] MEM_exception_instruction
 );
+    reg [10:0] MEM_control_signal;
+    reg [31:0] MEM_instruction;
     reg [31:0] MEM_write_data;
 
-    always@(negedge SYS_clk, posedge SYS_reset)
+    reg [2:0]  pre_exception_singal;
+    reg        non_align_word;
+
+    always@(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset)
+        if (SYS_reset || interrupt_signal)
         begin
             MEM_instruction    <= 0;
             MEM_control_signal <= 0;
             MEM_ALUresult      <= 0;
             MEM_write_data     <= 0;
             MEM_write_register <= 0;
+            non_align_word     <= 0;
+          pre_exception_singal <= 0;
+            MEM_PC             <= 0;
         end
 
         else
@@ -531,11 +618,12 @@ module memory_stage (
             MEM_ALUresult      <= EX_ALUresult;
             MEM_write_data     <= EX_operand2;
             MEM_write_register <= EX_write_register;
+            non_align_word     <= EX_non_align_word;
+          pre_exception_singal <= EX_exception_singal;
+            MEM_PC             <= EX_PC;
         end
     end
 
-    assign MemRead_signal = MEM_control_signal[8];
-    assign MemWrite_signal = MEM_control_signal[7];
 
     DMEM    d1( //INPUT
                 .DMEM_address   (MEM_ALUresult), //alu and adrress
@@ -546,6 +634,16 @@ module memory_stage (
                 //OUTPUT
                 .DMEM_data_out  (MEM_read_data)
                );
+            
+    //xử lý exception
+    assign MEM_exception_singal = (pre_exception_singal)                     ? pre_exception_singal :
+        ((MEM_control_signal[8] || MEM_control_signal[7]) && non_align_word) ? 3'b11                : 3'b0; //nếu như cho phép đọc ghi mà gây ra exception thì bỏ
+
+    assign MEM_exception_control_signal = (MEM_exception_singal) ? 11'b0 : MEM_control_signal;
+    assign MEM_exception_instruction    = (MEM_exception_singal) ? 32'b0 : MEM_instruction;
+
+    assign MemRead_signal = MEM_exception_control_signal[8];    //nếu đã cả ra exeption rồi thì không cho phép đọc ghi
+    assign MemWrite_signal = MEM_exception_control_signal[7];
 endmodule
 
 module WB_stage (
@@ -556,25 +654,34 @@ module WB_stage (
     input      [31:0] MEM_ALUresult,
     input      [4:0]  MEM_write_register,
     input      [31:0] MEM_instruction, 
+    input      [2:0]  MEM_exception_singal,
+    input      [31:0] MEM_PC,
+    input             interrupt_signal,
 
+    output     [2:0]  WB_exception_singal,
     output     [31:0] WB_write_data,
     output            WB_RegWrite_signal,
     output reg [4:0]  WB_write_register,
+    output reg [31:0] WB_PC,
     output reg [31:0] WB_instruction
 );
     reg [10:0] WB_control_signal;
     reg [31:0] WB_read_data;
     reg [31:0] WB_ALUresult;
 
-    always @(negedge SYS_clk, posedge SYS_reset)
+    reg [2:0]  pre_exception_singal;
+
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset)
+        if (SYS_reset || interrupt_signal)
         begin
             WB_control_signal <= 0;
             WB_read_data      <= 0;
             WB_ALUresult      <= 0;
             WB_write_register <= 0;
             WB_instruction    <= 0;
+         pre_exception_singal <= 0;
+            WB_PC             <= 0;
         end
         
         else
@@ -584,9 +691,42 @@ module WB_stage (
             WB_ALUresult      <= MEM_ALUresult;
             WB_write_register <= MEM_write_register;
             WB_instruction    <= MEM_instruction;
+         pre_exception_singal <= MEM_exception_singal;
+            WB_PC             <= MEM_PC;
         end
     end
 
-    assign WB_RegWrite_signal = WB_control_signal[1];
     assign WB_write_data =  (WB_control_signal[6]) ? WB_read_data : WB_ALUresult;
+
+    //xử lý exception
+    assign WB_exception_singal = (pre_exception_singal)      ? pre_exception_singal :
+            (WB_write_register == 0 && WB_control_signal[1]) ? 3'b111               : 3'b000;
+
+    assign WB_RegWrite_signal = (WB_exception_singal)        ? 0 : WB_control_signal[1]; //nếu có exception thì 0 ghi
+endmodule
+
+module exception_handle(
+    input             SYS_reset,
+    input      [2:0]  WB_exception_singal,
+    input      [31:0] WB_PC,
+
+    output reg [31:0] EPC,
+    output reg        interrupt_signal
+);
+
+    always @(posedge SYS_reset, posedge WB_exception_singal)
+    begin
+        if (SYS_reset)
+        begin
+            interrupt_signal <= 0;
+            EPC              <= 0;
+        end
+
+        else
+        begin
+            EPC              <= WB_PC;
+            interrupt_signal <= 1;
+        end
+    end
+
 endmodule
