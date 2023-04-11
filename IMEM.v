@@ -42,16 +42,16 @@ module IMEM(
     input [31:0] IMEM_PC, //address
     output [31:0] IMEM_instruction //
 );
-    parameter start_address = 32'h00400000;
-    reg [31:0] ins [start_address : start_address + 63*4]; //có 64 câu lệnh, mỗi lệnh có 32 bit chứa trong 32 register
-    assign IMEM_instruction = ins[IMEM_PC];
+    parameter start_address = 32'h00400000 >> 2;
+    reg [31:0] ins [start_address : start_address + 63]; //có 64 câu lệnh, mỗi lệnh có 32 bit chứa trong 32 register
+    assign IMEM_instruction = ins[IMEM_PC >> 2];
 
     integer i;
     initial begin
         //$readmemb("input.mem", ins);
         for(i=0; i<64 ;i=i+1)
         begin
-            ins[ start_address + i * 4] = 0;
+            ins[ start_address + i] = 0;
         end
         $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_text.txt", ins);
         
