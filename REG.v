@@ -66,7 +66,7 @@ output [31:0] test_value_register          //chỉ dành cho test, test xong xó
 
 
     //always @(posedge clk)
-    always @(posedge clk)
+    always @(negedge clk)
     begin 
     if(REG_write_1)
         register[REG_address_wr] = REG_data_wb_in1;
