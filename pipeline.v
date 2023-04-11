@@ -28,7 +28,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, PC =%h, D_instruction = %h, D_stall_counter = %b", $time, PC, D_instruction, D_stall_counter);
+        $monitor("PC =%h, D_instruction = %h, D_stall_counter = %b, D_isEqual_onBranch = %b, D_control_signal[9] = %b, branch_taken = %b", PC, D_instruction, D_stall_counter, D_isEqual_onBranch,D_control_signal[9], branch_taken);
     end
 
     initial 
@@ -76,6 +76,7 @@ module system(
 
     reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
 
+    assign branch_taken = (D_control_signal[9] && D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch );
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
