@@ -40,7 +40,7 @@ module control(
                 control_signal[10:0] = 11'b00000001000;
         end
 
-        if (opcode == 6'h1c) //mul
+        else if (opcode == 6'h1c) //mul
         begin
             control_signal[10:4] = 7'b0000010;
             control_signal[2:0] = 3'b011;
