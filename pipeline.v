@@ -395,6 +395,7 @@ module system(
 
     exception_handle interrupt(
         //INPUT
+        .SYS_clk                (SYS_clk),
         .SYS_reset              (SYS_reset),
         .WB_exception_singal    (WB_exception_singal),
         .WB_PC                  (WB_PC),
@@ -729,27 +730,38 @@ module WB_stage (
 endmodule
 
 module exception_handle(
+    input             SYS_clk,
     input             SYS_reset,
     input      [2:0]  WB_exception_singal,
     input      [31:0] WB_PC,
 
-    output reg [31:0] EPC,
-    output reg        interrupt_signal
+    output  [31:0] EPC,
+    output         interrupt_signal
 );
+    reg [2:0] exception_signal;
+    reg [31:0] commit_PC;
 
-    always @(posedge SYS_reset, posedge WB_exception_singal)
+    always @(posedge SYS_clk, posedge SYS_reset)
     begin
         if (SYS_reset)
         begin
-            interrupt_signal <= 0;
-            EPC              <= 0;
+            exception_signal <= 0;
+            commit_PC        <= 0;
+        end
+        
+        else if (!interrupt_signal)
+        begin
+            exception_signal <= WB_exception_singal;
+            commit_PC        <= WB_PC;
         end
 
         else
         begin
-            EPC              <= WB_PC;
-            interrupt_signal <= 1;
+            exception_signal <= exception_signal;
+            commit_PC        <= commit_PC;
         end
     end
 
+    assign interrupt_signal = |exception_signal;
+    assign EPC              = (interrupt_signal)? commit_PC : 32'b0;
 endmodule
