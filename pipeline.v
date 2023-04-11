@@ -28,7 +28,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, PC =%h, D_instruction = %h, EX_ALUresult = %d, stall_counter = %b, branch_taken = %b, test_address = %d, test value = %d",$time, PC, D_instruction,EX_ALUresult, D_stall_counter,  branch_taken, test_address_register, test_value_register);
+        $monitor("time = %d, PC =%h, D_instruction = %h, D_REG_data_out1 = %d, D_REG_data_out2 = %d, EX_ALUresult = %d, stall_counter = %b, branch_taken = %b, test_address = %d, test value = %d",$time, PC, D_instruction, D_REG_data_out1, D_REG_data_out2, EX_ALUresult, D_stall_counter,  branch_taken, test_address_register, test_value_register);
     end
 
     initial 
