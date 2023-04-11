@@ -32,7 +32,7 @@ module control(
             begin
                 control_signal[10:4] = 7'b0000010;
                 control_signal[2:0] = 3'b011;
-                // control_signal[3] = !rd; //đây là exception
+                control_signal[3]   = 0;
             end
             else if(opcode[1:0] == 2) // Jump
                 control_signal[10:0] = 11'b10000010000;
@@ -44,6 +44,7 @@ module control(
         begin
             control_signal[10:4] = 7'b0000010;
             control_signal[2:0] = 3'b011;
+            control_signal[3]   = 0;
         end
 
         else if(opcode[5:2]==4'b1000)// Load
@@ -53,12 +54,12 @@ module control(
             if(opcode[1:0]==2'b11) // word
             begin
                 control_signal[5:4] = 2'b00;
-                // control_signal[3] = !rt;
+                control_signal[3] = 0;
             end
             else if(opcode[1:0]==2'b01) //half
             begin
                 control_signal[5:4] = 2'b11;
-                // control_signal[3] = !rt;
+                control_signal[3] = 0;
             end
             else
             begin
@@ -95,7 +96,7 @@ module control(
             begin
             control_signal[10: 4] = 7'b0000000; //thử xem 5:4 là 00 xem có được phép cộng không
             control_signal[2:0] = 3'b110;
-            // control_signal[3] = !rt;
+            control_signal[3] = 0;
             end
         else
             control_signal[10:0] = 11'b00000001000;
