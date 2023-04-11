@@ -40,6 +40,12 @@ module control(
                 control_signal[10:0] = 11'b00000001000;
         end
 
+        if (opcode == 6'h1c) //mul
+        begin
+            control_signal[10:4] = 7'b0000010;
+            control_signal[2:0] = 3'b011;
+        end
+
         else if(opcode[5:2]==4'b1000)// Load
         begin
             control_signal[10:6] = 7'b00101;
