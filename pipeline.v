@@ -50,6 +50,7 @@ module system(
     wire [10:0] D_control_signal;       //OK
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
     wire [31:0] D_PC;
+    wire        branch_taken;
     
     //EXECUTION stage
     wire [31:0] EX_instruction;     //OK
@@ -97,15 +98,8 @@ module system(
 
             if      (D_stall_counter)  //khong lam gi neu dang co stall
                 PC <= PC;
-            else if (D_control_signal[9])    //là branch signal, được giải quyết ở Decode stage
-            begin
-                if      (D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch ) //beq
-                    PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
-                else if (D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch ) //bne
-                    PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
-                else 
-                    PC <= PC + 4;
-            end
+            else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
+                PC <=  D_PC + 4 + (D_Out_SignedExtended[7:0]<<2);
 
             else if (D_control_signal[10])  //lệnh jump
                 PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
@@ -310,7 +304,7 @@ module system(
                          .D_Out_SignedExtended  (D_Out_SignedExtended),
                          .test_value_register   (test_value_register),
                          .D_PC                  (D_PC),
-                         .D_isEqual_onBranch    (D_isEqual_onBranch)
+                         .branch_taken          (branch_taken)   
                         );
 
 
@@ -389,13 +383,15 @@ module decode_stage (
     output     [4:0]  D_write_register,
     output     [31:0] D_Out_SignedExtended,
     output reg [31:0] D_PC,
-    output            D_isEqual_onBranch,   //tín hiệu so sánh branch sớm được đưa lên decode stage
+    output            branch_taken,
 
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
        
 );
     wire [31:0] operand1;
     wire [31:0] operand2;
+    wire        D_isEqual_onBranch;   //tín hiệu so sánh branch sớm được đưa lên decode stage
+
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
@@ -409,6 +405,12 @@ module decode_stage (
         begin
             D_instruction <= D_instruction;
             D_PC          <= D_PC;
+        end
+
+        else if (branch_taken || D_control_signal[10])  //lệnh jump và branch, giết câu lệnh tiếp theo
+        begin
+            D_instruction <= 0;
+            D_PC          <= F_PC;
         end
 
         else
@@ -442,10 +444,13 @@ module decode_stage (
                  .REG_data_out2   (operand2), //giá trị rt đ�?c được để đưa vào tính toán
                  .test_value_register (test_value_register)
                  );
-    assign D_isEqual_onBranch = (D_REG_data_out1 == D_REG_data_out2);
     
     assign D_REG_data_out1 = (D_to_MEM_forwardSignal[1]) ? MEM_ALUresult : operand1;    //choose betwwen forward from MEM or not
     assign D_REG_data_out2 = (D_to_MEM_forwardSignal[0]) ? MEM_ALUresult : operand2;
+
+    assign D_isEqual_onBranch = (D_REG_data_out1 == D_REG_data_out2);
+    assign branch_taken = D_control_signal[9] && ((D_instruction[31:26] == 6'h4 &&  D_isEqual_onBranch) || 
+                                                  (D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch ));
 endmodule
 
 
