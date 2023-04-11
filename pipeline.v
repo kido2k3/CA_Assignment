@@ -77,7 +77,6 @@ module system(
 
     reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
 
-    assign branch_taken = (D_control_signal[9] && D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch );
 
     always @(negedge SYS_clk, posedge SYS_reset)
     begin
