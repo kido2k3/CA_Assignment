@@ -445,7 +445,7 @@ module decode_stage (
         end
     end
     
-    control crl1 (.opcode         (D_instruction[31:26]),//INPUT
+    control crl1 (.instruction    (D_instruction),//INPUT
                   .control_signal (D_control_signal)    //tín hiệu control output ra
                  );
 

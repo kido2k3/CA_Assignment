@@ -21,12 +21,18 @@
 
 
 module control(
-    input [5 :0] opcode, 
+    input [31 :0] instruction, 
     output reg [10:0] control_signal
     );
+    wire [5:0] opcode;
+    assign opcode = instruction[31:26];
+
     always@(*)
     begin
-        if(!opcode[5:2])
+        if (!instruction)
+            control_signal = 11'b000_000_000_00;
+
+        else if(!opcode[5:2])
         begin
             if(!opcode[1:0]) // R-format
             begin
