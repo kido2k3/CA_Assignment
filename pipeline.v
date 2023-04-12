@@ -479,6 +479,7 @@ module decode_stage (
     
     REG     Reg1 (//for WB stage
                  .clk             (SYS_clk),             //clock này chỉ để write ở WB
+                 .SYS_reset       (SYS_reset),
                  .REG_address_wr  (WB_write_register),   //địa chỉ để ghi vào, là rd trong R, rt trong I
                  .REG_write_1     (WB_RegWrite_signal), //tín hiê ucho phép ghi hay không
                  .REG_data_wb_in1 (WB_write_data),      //dữ liệu tính toán ra được sắp được ghi vào.
