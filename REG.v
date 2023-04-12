@@ -52,7 +52,7 @@ output [31:0] test_value_register          //chỉ dành cho test, test xong xó
         if (REG_address2 == REG_address_wr)
         begin
             if (REG_write_1)
-                REG_data_out1 <= REG_data_wb_in1;
+                REG_data_out2 <= REG_data_wb_in1;
             else
                 REG_data_out2 <= register[REG_address2];
         end
