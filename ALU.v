@@ -99,7 +99,8 @@ output [7:0] status_out
             mul_ALU = a*b;
             result = mul_ALU[31:0];
             status[7] = (result == 0);
-            status[6] = (mul_ALU[63:32] || status[5])? 1'b1 : 1'b0;
+            // status[6] = (mul_ALU[63:32] || status[5])? 1'b1 : 1'b0; status [5] là cái gì? lúc này đã tính xong chưa?
+            status[6] = (mul_ALU[63:32])? 1'b1 : 1'b0;
             status[4] = result[31];
             status[5] = 1'b0;
             status[3] = 1'b0;
