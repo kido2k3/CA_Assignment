@@ -41,7 +41,8 @@ module system(
 
     initial 
     begin
-        #180;
+        #100 SYS_reset = 1;
+        #3   SYS_reset = 0;
         // $display ("time = %d, ", $time, );
     end
     
