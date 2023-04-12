@@ -259,6 +259,7 @@ module system(
             
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
+                D_to_MEM_forwardSignal[0] <= 0;
                 if (MEM_instruction[15:11] == D_instruction[25:21])   //rd == rs
                     D_to_MEM_forwardSignal[1] <= 1'b1;                      
                 else
@@ -287,6 +288,7 @@ module system(
 
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
             begin
+                D_to_MEM_forwardSignal[0] <= 0;
                 if      (MEM_instruction[20:16] == D_instruction[25:21])   //rd == rs
                     D_to_MEM_forwardSignal[1] <= 1'b1;                      
                 else
