@@ -137,37 +137,6 @@ module system(
         if (!EX_instruction || !D_instruction)  //dothing if nop
             D_stall_counter <= D_stall_counter;
 
-        else if (!EX_instruction[31:26] || EX_instruction[31:26] == 6'h1c)     //lenh trong EX la lenh R)
-        begin
-            if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
-                    D_stall_counter <= 1;
-                else
-                    D_stall_counter <= D_stall_counter;
-
-            end
-            
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 1;
-                else
-                    D_stall_counter <= D_stall_counter;
-            end
-
-            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16])   //EX.rd == D.rs or EX.rd == D.rt
-                    D_stall_counter <= 2'b1;
-                else
-                    D_stall_counter <= D_stall_counter;
-            end
-
-            else
-                D_stall_counter <= D_stall_counter;
-        end
-
         else if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 2 stage
         begin
             if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
@@ -199,6 +168,70 @@ module system(
             else
                 D_stall_counter <= D_stall_counter;
         end
+
+        else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 2 stage
+        begin
+            if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
+            begin
+                if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
+                    D_stall_counter <= 2'd1;
+                else
+                    D_stall_counter <= D_stall_counter;
+
+            end
+            
+
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                    D_stall_counter <= 2'd1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+            begin
+                if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
+                    D_stall_counter <= 2'd1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+            
+            else
+                D_stall_counter <= D_stall_counter;
+        end
+
+        else if (!EX_instruction[31:26] || EX_instruction[31:26] == 6'h1c)     //lenh trong EX la lenh R)
+        begin
+            if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
+            begin
+                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
+                    D_stall_counter <= 1;
+                else
+                    D_stall_counter <= D_stall_counter;
+
+            end
+            
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            begin
+                if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                    D_stall_counter <= 1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+            begin
+                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16])   //EX.rd == D.rs or EX.rd == D.rt
+                    D_stall_counter <= 2'b1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else
+                D_stall_counter <= D_stall_counter;
+        end
+
     
         else if (EX_instruction[31:26] == 6'b001000) //neu lenh trong EX la addi
         begin
@@ -424,8 +457,8 @@ module decode_stage (
 
     input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
-    wire       [31:0] D_exception_instruction,    //chọn lọc lại
-    wire       [10:0] D_exception_control_signal, //chọn lọc lại qua exception
+    wire       [31:0] D_exception_instruction,    //ch�?n l�?c lại
+    wire       [10:0] D_exception_control_signal, //ch�?n l�?c lại qua exception
     output     [31:0] D_REG_data_out1,
     output     [31:0] D_REG_data_out2,
     output     [4:0]  D_write_register,
@@ -437,7 +470,7 @@ module decode_stage (
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
        
 );
-    reg  [31:0] D_instruction;    //lưu giữ instruction để handle được hazard, đây là tín hiệu được ban đầu nhưng output là thứ dã qua chọn lọc
+    reg  [31:0] D_instruction;    //lưu giữ instruction để handle được hazard, đây là tín hiệu được ban đầu nhưng output là thứ dã qua ch�?n l�?c
     wire [10:0] D_control_signal; //cứ lưu giữ hết tất cả các tín hiệu control
     wire [31:0] operand1;
     wire [31:0] operand2;
@@ -505,8 +538,8 @@ module decode_stage (
                                                   (D_instruction[31:26] == 6'h5 && !D_isEqual_onBranch ));
     
     assign D_exception_signal         = (D_control_signal[3]) ? 3'b001 : 3'b0;
-    assign D_exception_instruction    = (D_exception_signal)  ? 32'b0  : D_instruction;       //chọn lọc lại, thứ được đưa ra ngoài là thứ đã được xử lý
-    assign D_exception_control_signal = (D_exception_signal)  ? 32'b0  : D_control_signal;    //chọn lọc lại, thứ được đưa ra ngoài là thứ đã được xử lý
+    assign D_exception_instruction    = (D_exception_signal)  ? 32'b0  : D_instruction;       //ch�?n l�?c lại, thứ được đưa ra ngoài là thứ đã được xử lý
+    assign D_exception_control_signal = (D_exception_signal)  ? 32'b0  : D_control_signal;    //ch�?n l�?c lại, thứ được đưa ra ngoài là thứ đã được xử lý
 endmodule
 
 
@@ -592,7 +625,7 @@ module execution_stage (
                                          (status_out[2] ||  status_out[6]) ? 3'b010               : 3'b0;
    
     assign EX_exception_control_signal = (EX_exception_signal) ? 11'b0 : EX_control_signal;
-    assign EX_exception_instruction    = (EX_exception_signal) ? 32'b0 : EX_instruction;            //chọn lọc
+    assign EX_exception_instruction    = (EX_exception_signal) ? 32'b0 : EX_instruction;            //ch�?n l�?c
     assign EX_non_align_word           = status_out[3];
 endmodule
 
@@ -665,12 +698,12 @@ module memory_stage (
             
     //xử lý exception
     assign MEM_exception_signal = (pre_exception_signal)                     ? pre_exception_signal :
-        ((MEM_control_signal[8] || MEM_control_signal[7]) && non_align_word) ? 3'b11                : 3'b0; //nếu như cho phép đọc ghi mà gây ra exception thì bỏ
+        ((MEM_control_signal[8] || MEM_control_signal[7]) && non_align_word) ? 3'b11                : 3'b0; //nếu như cho phép đ�?c ghi mà gây ra exception thì b�?
 
     assign MEM_exception_control_signal = (MEM_exception_signal) ? 11'b0 : MEM_control_signal;
     assign MEM_exception_instruction    = (MEM_exception_signal) ? 32'b0 : MEM_instruction;
 
-    assign MemRead_signal = MEM_exception_control_signal[8];    //nếu đã cả ra exeption rồi thì không cho phép đọc ghi
+    assign MemRead_signal = MEM_exception_control_signal[8];    //nếu đã cả ra exeption rồi thì không cho phép đ�?c ghi
     assign MemWrite_signal = MEM_exception_control_signal[7];
 endmodule
 
