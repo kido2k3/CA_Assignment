@@ -470,7 +470,7 @@ module decode_stage (
         else if (branch_taken || D_control_signal[10])  //lệnh jump và branch, giết câu lệnh tiếp theo
         begin
             D_instruction <= 0;
-            D_PC          <= F_PC;
+            D_PC          <= F_PC - 4;
         end
 
         else
