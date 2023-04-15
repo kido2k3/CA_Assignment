@@ -36,7 +36,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, EX_PC =%h, D_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, EX_status_out = %b ",$time, EX_PC ,D_instruction, D_control_signal, EX_instruction, EX_non_align_word, EX_status_out );
+        $monitor("time = %d, EX_PC =%h, D_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, EX_status_out = %b, EX_ALU_control = %d",$time, EX_PC ,D_instruction, D_control_signal, EX_instruction, EX_non_align_word, EX_status_out, EX_ALU_control );
     end
 
     initial 
@@ -70,6 +70,7 @@ module system(
     wire [31:0] EX_PC;
     wire EX_non_align_word;
     wire [7:0] EX_status_out;
+    wire [3:0] EX_ALU_control;
 
 
     //MEMORY stage
@@ -387,7 +388,8 @@ module system(
                         .EX_exception_signal    (EX_exception_signal),
                         .EX_PC                  (EX_PC),
                         .EX_non_align_word      (EX_non_align_word),
-                        .status_out             (EX_status_out)
+                        .status_out             (EX_status_out),
+                        .alu_control            (EX_ALU_control)
                       );
 
     memory_stage MEM  (//INPUT
@@ -567,7 +569,9 @@ module execution_stage (
     output     [31:0] EX_ALUresult,
     output reg [31:0] EX_operand2,
     output reg [4:0]  EX_write_register,  //để sử dụng ở WB
-    output [7:0] status_out
+    output [7:0] status_out,
+    output [3:0] alu_control
+
 );
     reg [2:0]  pre_exception_signal;    //dùng để giữ tín hiệu exception ở câu lệnh trước, nhưng không phải thứ sẽ xuất ra
     reg [31:0] EX_instruction;
@@ -575,7 +579,6 @@ module execution_stage (
     reg [31:0] EX_operand1;
     reg [31:0] EX_Out_SignedExtended;
 
-    wire [3:0] alu_control;
     wire [31:0] ALUSRC;
     always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
