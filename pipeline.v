@@ -476,7 +476,7 @@ module decode_stage (
         else
         begin
             D_instruction <= F_instruction;
-            D_PC          <= F_PC;
+            D_PC          <= F_PC - 4;
         end
     end
     
