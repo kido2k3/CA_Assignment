@@ -36,15 +36,15 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, EX_PC =%h, D_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, MEM_exception_signal = %b",$time, EX_PC ,D_instruction, D_control_signal, EX_instruction, EX_non_align_word, MEM_exception_signal );
+        $monitor("time = %d, EX_PC =%h, WB_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, WB_exception_signal = %b",$time, EX_PC ,D_instruction, D_control_signal, WB_instruction, EX_non_align_word, WB_exception_signal );
     end
 
-    initial 
-    begin
-        #100 SYS_reset = 1;
-        #3   SYS_reset = 0;
-        // $display ("time = %d, ", $time, );
-    end
+    // initial 
+    // begin
+    //     #100 SYS_reset = 1;
+    //     #3   SYS_reset = 0;
+    //     // $display ("time = %d, ", $time, );
+    // end
     
     //FETCH stage OK
     reg [31:0] PC;
