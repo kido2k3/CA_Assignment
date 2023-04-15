@@ -36,7 +36,7 @@ module system(
     initial
     begin
         test_address_register = 16;
-        $monitor("time = %d, EX_PC =%h, D_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, EX_status_out = %b, EX_ALU_control = %d",$time, EX_PC ,D_instruction, D_control_signal, EX_instruction, EX_non_align_word, EX_status_out, EX_ALU_control );
+        $monitor("time = %d, EX_PC =%h, D_instruction = %h, D_control_signal = %b,  EX_instruction = %h, EX_non_align_word = %b, MEM_exception_signal = %b",$time, EX_PC ,D_instruction, D_control_signal, EX_instruction, EX_non_align_word, MEM_exception_signal );
     end
 
     initial 
