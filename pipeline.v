@@ -623,7 +623,7 @@ module execution_stage (
 
     ALU_control AC1 (.ALUop       (EX_control_signal[5:4]), //input
                      .funct       (EX_instruction   [5:0]), //input
-                     .opcode       (EX_instruction[31:26]),
+                     .opcode       (EX_instruction[31:26]), //lệnh srl và mul chỉ khác nhau ở opcode, cùng funct nên đưa thêm opcode vào để quyết định alu control signal
 
                      .control_out (alu_control      [3:0]) //output
                     );
