@@ -6,6 +6,7 @@
 module ALU_control(
     input [1:0] ALUop, //control_signal[5:4]
     input [5:0] funct,
+    input [5:0] opcode,
     output reg [3:0] control_out
 );
     always @(ALUop, funct)
@@ -19,10 +20,10 @@ module ALU_control(
                     6'b100100:  control_out <= 0;//and
                     6'b100101:  control_out <= 1;//or
                     6'b101010:  control_out <= 7;//slt
-                    6'b000010:  control_out <= 5;//mul
+                    6'b000010:  control_out <= (opcode) ? 5 : 9;//mul or srl
                     6'h1a:      control_out <= 4;//div
                     6'h0:       control_out <= 8;//sll
-                    6'h02:      control_out <= 9;//srl
+                    // 6'h02:      control_out <= 9;//srl
                     6'h000011:  control_out <= 12;//sra
                     6'h26:      control_out <= 10;//xor
                     6'h27:      control_out <= 11;//nor
