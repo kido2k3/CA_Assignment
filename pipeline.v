@@ -35,7 +35,7 @@ module system(
 
     initial
     begin
-        test_address_register = 8;
+        test_address_register = 1;
         $monitor("time = %d, EX_PC =%h, D_instruction = %h,  EX_instruction = %h, register %d has value %d",$time, EX_PC ,D_instruction, EX_instruction, test_address_register, test_value_register );
     end
 
