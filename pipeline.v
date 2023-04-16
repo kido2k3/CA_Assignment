@@ -633,6 +633,7 @@ module execution_stage (
                       .control      (alu_control[3:0]),
                       .a            (EX_operand1), //rs in
                       .b            (ALUSRC[31:0]),       //rt or imm
+                      .shamt        (EX_instruction[10:6]),
                       //OUTPUT
                       .result_out   (EX_ALUresult[31:0]),
                       .status_out   (status_out) //trạng thái của phép tín htrong alu

@@ -24,6 +24,8 @@ module ALU(
     input           [3:0] control,
     input signed    [31:0] a,
     input signed    [31:0] b,
+    input           [4:0] shamt,
+
     output signed   [31:0] result_out,
     output          [7:0] status_out
 );
@@ -148,7 +150,7 @@ module ALU(
             mul_ALU = 0;
             end
         8: begin
-            result = a<<b;
+            result = b<<shamt;
             status[7] = (result == 0);
             status[6] = 1'b0;
             status[4] = 1'b0;
@@ -158,7 +160,7 @@ module ALU(
             mul_ALU = 0;
             end
         9: begin
-            result = a>>b;
+            result = b>>shamt;
             status[7] = (result == 0);
             status[6] = 1'b0;
             status[4] = 1'b0;
