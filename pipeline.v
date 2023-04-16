@@ -13,12 +13,14 @@
 module system(
     input   SYS_clk,
     input   SYS_reset,
-    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
-    // input SYS_load,
-    // input [7:0] SYS_pc_val,
-    // input [7 :0] SYS_output_sel,
-    // output[26:0] SYS_leds,
+    input        SYS_load,
+    input [7:0]  SYS_pc_val,
+    input [2:0]  SYS_output_sel, //trong đề là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
+    
+    output[26:0] SYS_leds,
+
+    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
     output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
 );
 
@@ -46,6 +48,8 @@ module system(
     wire [31:0] EX_operand2;
     wire [31:0] EX_PC;
     wire EX_non_align_word;
+    wire [7:0] EX_status_out;
+    wire [3:0]  EX_alu_control;
 
 
     //MEMORY stage
@@ -75,10 +79,21 @@ module system(
     //exception detection
     wire [2:0] D_exception_signal, EX_exception_signal, MEM_exception_signal, WB_exception_signal;
 
+    //khối theo thầy yêu cầu
+    assign SYS_leds =   (SYS_reset)           ? 0                       :
+                        (SYS_output_sel == 0) ? F_instruction           :
+                        (SYS_output_sel == 1) ? D_REG_data_out1         :
+                        (SYS_output_sel == 2) ? EX_ALUresult            :
+                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
+                        (SYS_output_sel == 4) ? MEM_read_data           :
+                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
+                        (SYS_output_sel == 6) ? EX_alu_control          :
+                        (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
+
 
     always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset || interrupt_signal)
+        if (SYS_reset || interrupt_signal || SYS_load)
         begin
             D_stall_counter     <= 0;
         end
@@ -376,6 +391,8 @@ module system(
         .D_stall_counter        (D_stall_counter),
         .D_jump_signal          (D_control_signal[10]),
         .branch_taken           (branch_taken),
+        .SYS_load               (SYS_load),
+        .SYS_pc_val             (SYS_pc_val),
         //OUTPUT
         .PC                     (PC),
         .F_instruction          (F_instruction)
@@ -429,7 +446,9 @@ module system(
         .EX_write_register      (EX_write_register),
         .EX_exception_signal    (EX_exception_signal),
         .EX_PC                  (EX_PC),
-        .EX_non_align_word      (EX_non_align_word)
+        .EX_non_align_word      (EX_non_align_word),
+        .status_out             (EX_status_out),
+        .alu_control            (EX_alu_control)
     );
 
     memory_stage MEM  (//INPUT
@@ -497,6 +516,9 @@ module fetch_stage(
     input             D_jump_signal,
     input             branch_taken,
 
+    input             SYS_load,
+    input       [7:0] SYS_pc_val,
+
     output reg [31:0] PC,
     output     [31:0] F_instruction
 );
@@ -510,7 +532,9 @@ module fetch_stage(
 
         else
         begin
-            if      (D_stall_counter)  //khong lam gi neu dang co stall
+            if      (SYS_load)      //lệnh của người dùng
+                PC[7:0] <= SYS_pc_val;
+            else if (D_stall_counter)  //khong lam gi neu dang co stall
                 PC <= PC;
             else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
                 PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
@@ -650,8 +674,9 @@ module execution_stage (
     output     [31:0] EX_exception_instruction,
     output     [31:0] EX_ALUresult,
     output reg [31:0] EX_operand2,
-    output reg [4:0]  EX_write_register  //để sử dụng ở WB
-
+    output reg [4:0]  EX_write_register,  //để sử dụng ở WB
+    output     [7:0]  status_out,
+    output     [3:0] alu_control
 );
     reg [2:0]  pre_exception_signal;    //dùng để giữ tín hiệu exception ở câu lệnh trước, nhưng không phải thứ sẽ xuất ra
     reg [31:0] EX_instruction;
@@ -659,9 +684,7 @@ module execution_stage (
     reg [31:0] EX_operand1;
     reg [31:0] EX_Out_SignedExtended;
 
-    wire [3:0] alu_control;
     wire [31:0] ALUSRC;
-    wire [7:0] status_out;
     always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
         if (SYS_reset || D_stall_counter || interrupt_signal)
