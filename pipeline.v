@@ -47,7 +47,7 @@ module system(
     // end
     
     //FETCH stage OK
-    reg [31:0] PC;
+    wire [31:0] PC;
     wire [31:0] F_instruction;
 
     //DECODE stage
@@ -60,6 +60,7 @@ module system(
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
     wire [31:0] D_PC;
     wire        branch_taken;
+    wire        D_jump_signal;
     
     //EXECUTION stage
     wire [31:0] EX_instruction;     //OK
@@ -105,7 +106,6 @@ module system(
     begin
         if (SYS_reset || interrupt_signal)
         begin
-            PC                  <= 'h00400000;
             D_stall_counter     <= 0;
         end
 
@@ -115,23 +115,8 @@ module system(
                 D_stall_counter <= D_stall_counter - 1;
             else 
                 D_stall_counter <= D_stall_counter;
-
-
-
-            if      (D_stall_counter)  //khong lam gi neu dang co stall
-                PC <= PC;
-            else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
-                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
-
-            else if (D_control_signal[10])  //lệnh jump
-                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
-
-            else
-                PC <= PC + 4;
         end
     end
-
-    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //detection data hazard between EX and Decode stage
     always @(D_instruction, EX_instruction)
@@ -338,100 +323,116 @@ module system(
             D_to_MEM_forwardSignal <= 2'b00;
     end
 
+    fetch_stage  fetch (
+        //INPUT
+        .SYS_clk                (SYS_clk),
+        .SYS_reset              (SYS_reset),
+        .interrupt_signal       (interrupt_signal),
+        .D_Out_SignedExtended   (D_Out_SignedExtended),
+        .D_instruction          (D_instruction),
+        .D_PC                   (D_PC),
+        .D_stall_counter        (D_stall_counter),
+        .D_jump_signal          (D_control_signal[10]),
+        .branch_taken           (branch_taken),
+        //OUTPUT
+        .PC                     (PC),
+        .F_instruction          (F_instruction)
+    );
 
     decode_stage decode (//INPUT
-                         .SYS_clk               (SYS_clk),
-                         .SYS_reset             (SYS_reset),
-                         .interrupt_signal      (interrupt_signal),
-                         .F_instruction         (F_instruction),
-                         .F_PC                  (PC),
-                         .WB_RegWrite_signal    (WB_RegWrite_signal),
-                         .WB_write_register     (WB_write_register),
-                         .WB_write_data         (WB_write_data),
-                         .D_stall_counter       (D_stall_counter),
-                         .D_to_MEM_forwardSignal(D_to_MEM_forwardSignal),   //forward
-                         .MEM_ALUresult         (MEM_ALUresult),            //forward 
+        .SYS_clk               (SYS_clk),
+        .SYS_reset             (SYS_reset),
+        .interrupt_signal      (interrupt_signal),
+        .F_instruction         (F_instruction),
+        .F_PC                  (PC),
+        .WB_RegWrite_signal    (WB_RegWrite_signal),
+        .WB_write_register     (WB_write_register),
+        .WB_write_data         (WB_write_data),
+        .D_stall_counter       (D_stall_counter),
+        .D_to_MEM_forwardSignal(D_to_MEM_forwardSignal),   //forward
+        .MEM_ALUresult         (MEM_ALUresult),            //forward 
 
-                         .test_address_register (test_address_register),
-                         //OUTPUT
-                         .D_exception_instruction   (D_instruction),
-                         .D_exception_control_signal(D_control_signal),
-                         .D_REG_data_out1       (D_REG_data_out1),
-                         .D_REG_data_out2       (D_REG_data_out2),
-                         .D_write_register      (D_write_register),
-                         .D_Out_SignedExtended  (D_Out_SignedExtended),
-                         .test_value_register   (test_value_register),
-                         .D_PC                  (D_PC),
-                         .branch_taken          (branch_taken),
-                         .D_exception_signal    (D_exception_signal)
-                        );
+        .test_address_register (test_address_register),
+        //OUTPUT
+    .D_exception_instruction   (D_instruction),
+    .D_exception_control_signal(D_control_signal),
+        .D_REG_data_out1       (D_REG_data_out1),
+        .D_REG_data_out2       (D_REG_data_out2),
+        .D_write_register      (D_write_register),
+        .D_Out_SignedExtended  (D_Out_SignedExtended),
+        .test_value_register   (test_value_register),
+        .D_PC                  (D_PC),
+        .branch_taken          (branch_taken),
+        .D_exception_signal    (D_exception_signal)
+    );
 
     execution_stage EX(//INPUT
-                        .SYS_clk                (SYS_clk),
-                        .SYS_reset              (SYS_reset),
-                        .interrupt_signal       (interrupt_signal),
-                        .D_instruction          (D_instruction),
-                        .D_control_signal       (D_control_signal),
-                        .D_REG_data_out1        (D_REG_data_out1),
-                        .D_REG_data_out2        (D_REG_data_out2),
-                        .D_write_register       (D_write_register),
-                        .D_Out_SignedExtended   (D_Out_SignedExtended),
-                        .D_stall_counter        (D_stall_counter),
-                        .D_exception_signal     (D_exception_signal),
-                        .D_PC                   (D_PC),
-                        //OUTPUT
-                    .EX_exception_instruction   (EX_instruction), 
-                    .EX_exception_control_signal(EX_control_signal),
-                        .EX_ALUresult           (EX_ALUresult),
-                        .EX_operand2            (EX_operand2),
-                        .EX_write_register      (EX_write_register),
-                        .EX_exception_signal    (EX_exception_signal),
-                        .EX_PC                  (EX_PC),
-                        .EX_non_align_word      (EX_non_align_word),
-                        .status_out             (EX_status_out),
-                        .alu_control            (EX_ALU_control)
-                      );
+        .SYS_clk                (SYS_clk),
+        .SYS_reset              (SYS_reset),
+        .interrupt_signal       (interrupt_signal),
+        .D_instruction          (D_instruction),
+        .D_control_signal       (D_control_signal),
+        .D_REG_data_out1        (D_REG_data_out1),
+        .D_REG_data_out2        (D_REG_data_out2),
+        .D_write_register       (D_write_register),
+        .D_Out_SignedExtended   (D_Out_SignedExtended),
+        .D_stall_counter        (D_stall_counter),
+        .D_exception_signal     (D_exception_signal),
+        .D_PC                   (D_PC),
+        //OUTPUT
+    .EX_exception_instruction   (EX_instruction), 
+    .EX_exception_control_signal(EX_control_signal),
+        .EX_ALUresult           (EX_ALUresult),
+        .EX_operand2            (EX_operand2),
+        .EX_write_register      (EX_write_register),
+        .EX_exception_signal    (EX_exception_signal),
+        .EX_PC                  (EX_PC),
+        .EX_non_align_word      (EX_non_align_word),
+        .status_out             (EX_status_out),
+        .alu_control            (EX_ALU_control)
+    );
+
 
     memory_stage MEM  (//INPUT
-                        .SYS_clk            (SYS_clk),
-                        .SYS_reset          (SYS_reset),
-                        .interrupt_signal   (interrupt_signal),
-                        .EX_instruction     (EX_instruction),
-                        .EX_write_register  (EX_write_register),
-                        .EX_control_signal  (EX_control_signal),
-                        .EX_ALUresult       (EX_ALUresult),
-                        .EX_operand2        (EX_operand2),
-                        .EX_exception_signal(EX_exception_signal),
-                        .EX_non_align_word  (EX_non_align_word),
-                        .EX_PC              (EX_PC),
-                        //OUTPUT
-              .MEM_exception_control_signal (MEM_control_signal),
-                        .MEM_ALUresult      (MEM_ALUresult),
-                        .MEM_read_data      (MEM_read_data),
-                        .MEM_write_register (MEM_write_register),
-                 .MEM_exception_instruction (MEM_instruction),
-                       .MEM_exception_signal(MEM_exception_signal)
-                      );
+            .SYS_clk            (SYS_clk),
+            .SYS_reset          (SYS_reset),
+            .interrupt_signal   (interrupt_signal),
+            .EX_instruction     (EX_instruction),
+            .EX_write_register  (EX_write_register),
+            .EX_control_signal  (EX_control_signal),
+            .EX_ALUresult       (EX_ALUresult),
+            .EX_operand2        (EX_operand2),
+            .EX_exception_signal(EX_exception_signal),
+            .EX_non_align_word  (EX_non_align_word),
+            .EX_PC              (EX_PC),
+            //OUTPUT
+  .MEM_exception_control_signal (MEM_control_signal),
+            .MEM_ALUresult      (MEM_ALUresult),
+            .MEM_read_data      (MEM_read_data),
+            .MEM_write_register (MEM_write_register),
+     .MEM_exception_instruction (MEM_instruction),
+           .MEM_exception_signal(MEM_exception_signal)
+    );
 
     WB_stage WB (//INPUT
-                .SYS_clk            (SYS_clk),
-                .SYS_reset          (SYS_reset),
-                .interrupt_signal   (interrupt_signal),
-                .MEM_control_signal (MEM_control_signal),
-                .MEM_read_data      (MEM_read_data),
-                .MEM_ALUresult      (MEM_ALUresult),
-                .MEM_write_register (MEM_write_register),
-                .MEM_instruction    (MEM_instruction),
-               .MEM_exception_signal(MEM_exception_signal),
-                .MEM_PC             (MEM_PC),
-                //OUTPUT
-                .WB_instruction     (WB_instruction),
-                .WB_write_data      (WB_write_data),        //OK
-                .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
-                .WB_write_register  (WB_write_register),     //ok
-                .WB_exception_signal(WB_exception_signal),
-                .WB_PC              (WB_PC)
-                );
+        .SYS_clk            (SYS_clk),
+        .SYS_reset          (SYS_reset),
+        .interrupt_signal   (interrupt_signal),
+        .MEM_control_signal (MEM_control_signal),
+        .MEM_read_data      (MEM_read_data),
+        .MEM_ALUresult      (MEM_ALUresult),
+        .MEM_write_register (MEM_write_register),
+        .MEM_instruction    (MEM_instruction),
+       .MEM_exception_signal(MEM_exception_signal),
+        .MEM_PC             (MEM_PC),
+        //OUTPUT
+        .WB_instruction     (WB_instruction),
+        .WB_write_data      (WB_write_data),        //OK
+        .WB_RegWrite_signal (WB_RegWrite_signal),   //OK
+        .WB_write_register  (WB_write_register),     //ok
+        .WB_exception_signal(WB_exception_signal),
+        .WB_PC              (WB_PC)
+    );
 
     exception_handle interrupt(
         //INPUT
@@ -443,6 +444,48 @@ module system(
         .EPC                    (EPC),
         .interrupt_signal       (interrupt_signal)
     );
+endmodule
+
+module fetch_stage(
+    input             SYS_clk,
+    input             SYS_reset,
+    input             interrupt_signal,
+    input      [31:0] D_Out_SignedExtended,
+    input      [31:0] D_instruction,
+    input      [31:0] D_PC,
+
+    input       [1:0] D_stall_counter,
+    input             D_jump_signal,
+    input             branch_taken,
+
+    output reg [31:0] PC,
+    output     [31:0] F_instruction
+);
+
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
+    begin
+        if (SYS_reset || interrupt_signal)
+        begin
+            PC  <= 'h00400000;
+        end
+
+        else
+        begin
+            if      (D_stall_counter)  //khong lam gi neu dang co stall
+                PC <= PC;
+            else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
+                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
+
+            else if (D_jump_signal)  //lệnh jump 
+                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
+
+            else
+                PC <= PC + 4;
+        end
+    end
+
+    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
+
 endmodule
 
 
