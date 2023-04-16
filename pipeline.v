@@ -23,7 +23,7 @@ module system(
 );
 
     //FETCH stage OK
-    reg [31:0] PC;
+    wire [31:0] PC;
     wire [31:0] F_instruction;
 
     //DECODE stage
@@ -36,6 +36,7 @@ module system(
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
     wire [31:0] D_PC;
     wire        branch_taken;
+    wire        D_jump_signal;
     
     //EXECUTION stage
     wire [31:0] EX_instruction;     //OK
@@ -79,7 +80,6 @@ module system(
     begin
         if (SYS_reset || interrupt_signal)
         begin
-            PC                  <= 'h00400000;
             D_stall_counter     <= 0;
         end
 
@@ -89,23 +89,8 @@ module system(
                 D_stall_counter <= D_stall_counter - 1;
             else 
                 D_stall_counter <= D_stall_counter;
-
-
-
-            if      (D_stall_counter)  //khong lam gi neu dang co stall
-                PC <= PC;
-            else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
-                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
-
-            else if (D_control_signal[10])  //lệnh jump
-                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
-
-            else
-                PC <= PC + 4;
         end
     end
-
-    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
 
     //detection data hazard between EX and Decode stage
     always @(D_instruction, EX_instruction)
@@ -312,6 +297,21 @@ module system(
             D_to_MEM_forwardSignal <= 2'b00;
     end
 
+    fetch_stage  fetch (
+        //INPUT
+        .SYS_clk                (SYS_clk),
+        .SYS_reset              (SYS_reset),
+        .interrupt_signal       (interrupt_signal),
+        .D_Out_SignedExtended   (D_Out_SignedExtended),
+        .D_instruction          (D_instruction),
+        .D_PC                   (D_PC),
+        .D_stall_counter        (D_stall_counter),
+        .D_jump_signal          (D_control_signal[10]),
+        .branch_taken           (branch_taken),
+        //OUTPUT
+        .PC                     (PC),
+        .F_instruction          (F_instruction)
+    );
 
     decode_stage decode (//INPUT
                          .SYS_clk               (SYS_clk),
@@ -415,6 +415,48 @@ module system(
         .EPC                    (EPC),
         .interrupt_signal       (interrupt_signal)
     );
+endmodule
+
+module fetch_stage(
+    input             SYS_clk,
+    input             SYS_reset,
+    input             interrupt_signal,
+    input      [31:0] D_Out_SignedExtended,
+    input      [31:0] D_instruction,
+    input      [31:0] D_PC,
+
+    input       [1:0] D_stall_counter,
+    input             D_jump_signal,
+    input             branch_taken,
+
+    output reg [31:0] PC,
+    output     [31:0] F_instruction
+);
+
+    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
+    begin
+        if (SYS_reset || interrupt_signal)
+        begin
+            PC  <= 'h00400000;
+        end
+
+        else
+        begin
+            if      (D_stall_counter)  //khong lam gi neu dang co stall
+                PC <= PC;
+            else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
+                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
+
+            else if (D_jump_signal)  //lệnh jump 
+                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
+
+            else
+                PC <= PC + 4;
+        end
+    end
+
+    IMEM imem (.IMEM_PC(PC), .IMEM_instruction(F_instruction)); //đ�?c lấy lệnh ra
+
 endmodule
 
 
