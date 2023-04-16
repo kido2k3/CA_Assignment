@@ -110,7 +110,7 @@ module system(
             end
             
 
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
                     D_stall_counter <= 2'd2;
@@ -118,6 +118,17 @@ module system(
                     D_stall_counter <= D_stall_counter;
             end
 
+            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+            begin
+                //sw rt -> offset(rs)
+                if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                    D_stall_counter <= 2'd2;
+                else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                    D_stall_counter <= 2'd2;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+        
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
@@ -130,7 +141,7 @@ module system(
                 D_stall_counter <= D_stall_counter;
         end
 
-        else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 2 stage
+        else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
         begin
             if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
             begin
@@ -142,9 +153,20 @@ module system(
             end
             
 
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 ) //load and addi
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                    D_stall_counter <= 2'd1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+            begin
+                //sw rt -> offset(rs)
+                if      (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                    D_stall_counter <= 2'd1;
+                else if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
                     D_stall_counter <= 2'd1;
                 else
                     D_stall_counter <= D_stall_counter;
@@ -173,9 +195,20 @@ module system(
 
             end
             
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                    D_stall_counter <= 1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+            begin
+                //sw rt -> offset(rs)
+                if      (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                    D_stall_counter <= 1;
+                else if (EX_instruction[15:11] == D_instruction[20:16]) //rd == rt
                     D_stall_counter <= 1;
                 else
                     D_stall_counter <= D_stall_counter;
@@ -204,9 +237,19 @@ module system(
                     D_stall_counter <= D_stall_counter;
 
             end
-            
 
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 || D_instruction[31:28]==4'b1010) //load and addi and store
+            else if (D_instruction[31:28]==4'b1010) //store, may word or half word
+            begin
+                //sw rt -> offset(rs)
+                if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                    D_stall_counter <= 1;
+                else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                    D_stall_counter <= 1;
+                else
+                    D_stall_counter <= D_stall_counter;
+            end
+
+            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
                     D_stall_counter <= 1;
