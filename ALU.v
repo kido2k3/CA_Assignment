@@ -118,11 +118,11 @@ module ALU(
             status[2] = (b) ? 1'b0 : 1'b1;
             mul_ALU = 0;
             end
-        12:begin
-            result = a+b;
+        12:begin    //sra
+            result = b>>>shamt;
             status[7] = (result == 0);
             status[6] = 1'b0;
-            status[4] = result[31];
+            status[4] = 1'b0;
             status[5] = 1'b0;
             status[3] = 1'b0;
             status[2] = 1'b0;
@@ -149,7 +149,7 @@ module ALU(
             status[2] = 1'b0;
             mul_ALU = 0;
             end
-        8: begin
+        8: begin    //sll
             result = b<<shamt;
             status[7] = (result == 0);
             status[6] = 1'b0;
@@ -159,7 +159,7 @@ module ALU(
             status[2] = 1'b0;
             mul_ALU = 0;
             end
-        9: begin
+        9: begin    //srl
             result = b>>shamt;
             status[7] = (result == 0);
             status[6] = 1'b0;
