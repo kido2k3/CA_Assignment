@@ -21,12 +21,12 @@
 
 
 module ALU(
-input [3:0] control,
-input signed [31:0] a,
-input signed [31:0] b,
-output signed [31:0] result_out,
-output [7:0] status_out
-    );
+    input           [3:0] control,
+    input signed    [31:0] a,
+    input signed    [31:0] b,
+    output signed   [31:0] result_out,
+    output          [7:0] status_out
+);
     reg [63:0] mul_ALU;
     reg [7:0] status;
     reg signed [31:0] result;
