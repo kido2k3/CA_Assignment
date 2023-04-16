@@ -72,6 +72,7 @@ module system(
     wire EX_non_align_word;
     wire [7:0] EX_status_out;
     wire [3:0] EX_ALU_control;
+    wire [31:0] EX_ALUSRC;
 
 
     //MEMORY stage
@@ -389,9 +390,9 @@ module system(
         .EX_PC                  (EX_PC),
         .EX_non_align_word      (EX_non_align_word),
         .status_out             (EX_status_out),
-        .alu_control            (EX_ALU_control)
+        .alu_control            (EX_ALU_control),
+        .ALUSRC                 (EX_ALUSRC)
     );
-
 
     memory_stage MEM  (//INPUT
             .SYS_clk            (SYS_clk),
@@ -613,8 +614,8 @@ module execution_stage (
     output reg [31:0] EX_operand2,
     output reg [4:0]  EX_write_register,  //để sử dụng ở WB
     output [7:0] status_out,
-    output [3:0] alu_control
-
+    output [3:0] alu_control,
+    output [31:0] ALUSRC
 );
     reg [2:0]  pre_exception_signal;    //dùng để giữ tín hiệu exception ở câu lệnh trước, nhưng không phải thứ sẽ xuất ra
     reg [31:0] EX_instruction;
@@ -622,7 +623,6 @@ module execution_stage (
     reg [31:0] EX_operand1;
     reg [31:0] EX_Out_SignedExtended;
 
-    wire [31:0] ALUSRC;
     always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
         if (SYS_reset || D_stall_counter || interrupt_signal)
