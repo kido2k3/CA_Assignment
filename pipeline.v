@@ -25,7 +25,7 @@ module system(
 );
 
     //FETCH stage OK
-    wire [31:0] PC;
+    wire [ 7:0] PC;
     wire [31:0] F_instruction;
 
     //DECODE stage
@@ -36,7 +36,7 @@ module system(
     wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok, trong trư�?ng hợp đơn giản
     wire [10:0] D_control_signal;       //OK
     wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
-    wire [31:0] D_PC;
+    wire [ 7:0] D_PC;
     wire        branch_taken;
     wire        D_jump_signal;
     
@@ -46,7 +46,7 @@ module system(
     wire [10:0] EX_control_signal;  //OK, như đặc tả
     wire [31:0] EX_ALUresult;       //OK   
     wire [31:0] EX_operand2;
-    wire [31:0] EX_PC;
+    wire [ 7:0] EX_PC;
     wire EX_non_align_word;
     wire [7:0] EX_status_out;
     wire [3:0]  EX_alu_control;
@@ -58,17 +58,17 @@ module system(
     wire [31:0] MEM_read_data;      //OK
     wire [4:0]  MEM_write_register; //OK
     wire [31:0] MEM_instruction;    //OK, 
-    wire [31:0] MEM_PC;
+    wire [ 7:0] MEM_PC;
 
     //Write Back stage
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
     wire [31:0] WB_instruction;
-    wire [31:0] WB_PC;
+    wire [ 7:0] WB_PC;
 
     //for exception
-    wire [31:0] EPC;
+    wire [ 7:0] EPC;
     wire interrupt_signal;
 
     //data hazard
@@ -510,7 +510,7 @@ module fetch_stage(
     input             interrupt_signal,
     input      [31:0] D_Out_SignedExtended,
     input      [31:0] D_instruction,
-    input      [31:0] D_PC,
+    input      [ 7:0] D_PC,
 
     input       [1:0] D_stall_counter,
     input             D_jump_signal,
@@ -519,7 +519,7 @@ module fetch_stage(
     input             SYS_load,
     input       [7:0] SYS_pc_val,
 
-    output reg [31:0] PC,
+    output reg [7:0]  PC,
     output     [31:0] F_instruction
 );
 
@@ -527,7 +527,7 @@ module fetch_stage(
     begin
         if (SYS_reset || interrupt_signal)
         begin
-            PC  <= 'h00400000;
+            PC  <= 0;
         end
 
         else
@@ -537,13 +537,13 @@ module fetch_stage(
             else if (D_stall_counter)  //khong lam gi neu dang co stall
                 PC <= PC;
             else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
-                PC <=  D_PC + 4 + (D_Out_SignedExtended<<2);
+                PC <=  D_PC + 1 + (D_Out_SignedExtended);
 
             else if (D_jump_signal)  //lệnh jump 
-                PC <= {D_PC[31:28], D_instruction[25:0] ,2'b00};
+                PC <= D_instruction[7:0] ;
 
             else
-                PC <= PC + 4;
+                PC <= PC + 1;
         end
     end
 
@@ -556,7 +556,7 @@ module decode_stage (
     input             SYS_clk,
     input             SYS_reset,
     input [31:0]      F_instruction,
-    input [31:0]      F_PC,
+    input [7:0]       F_PC,
     input             WB_RegWrite_signal,
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
@@ -573,7 +573,7 @@ module decode_stage (
     output     [31:0] D_REG_data_out2,
     output     [4:0]  D_write_register,
     output     [31:0] D_Out_SignedExtended,
-    output reg [31:0] D_PC,
+    output reg [7:0]  D_PC,
     output            branch_taken,
     output     [2:0]  D_exception_signal,
 
@@ -664,10 +664,10 @@ module execution_stage (
     input      [31:0] D_Out_SignedExtended,
     input      [1:0]  D_stall_counter, 
     input      [2:0]  D_exception_signal,
-    input      [31:0] D_PC,
+    input      [ 7:0] D_PC,
     input             interrupt_signal,
 
-    output reg [31:0] EX_PC,
+    output reg [ 7:0] EX_PC,
     output            EX_non_align_word, //tín hiệu để giành cho MEM stage nếu đây là lệnh load hoặc store
     output     [2:0]  EX_exception_signal,
     output     [10:0] EX_exception_control_signal,
@@ -752,10 +752,10 @@ module memory_stage (
     input      [31:0] EX_operand2,
     input             EX_non_align_word,
     input      [2:0]  EX_exception_signal,
-    input      [31:0] EX_PC,
+    input      [ 7:0] EX_PC,
     input             interrupt_signal,
 
-    output reg [31:0] MEM_PC,
+    output reg [ 7:0] MEM_PC,
     output     [2:0]  MEM_exception_signal,
     output     [10:0] MEM_exception_control_signal,
     output reg [31:0] MEM_ALUresult,
@@ -828,14 +828,14 @@ module WB_stage (
     input      [4:0]  MEM_write_register,
     input      [31:0] MEM_instruction, 
     input      [2:0]  MEM_exception_signal,
-    input      [31:0] MEM_PC,
+    input      [ 7:0] MEM_PC,
     input             interrupt_signal,
 
     output     [2:0]  WB_exception_signal,
     output     [31:0] WB_write_data,
     output            WB_RegWrite_signal,
     output reg [4:0]  WB_write_register,
-    output reg [31:0] WB_PC,
+    output reg [ 7:0] WB_PC,
     output reg [31:0] WB_instruction
 );
     reg [10:0] WB_control_signal;
@@ -882,13 +882,13 @@ module exception_handle(
     input             SYS_clk,
     input             SYS_reset,
     input      [2:0]  WB_exception_signal,
-    input      [31:0] WB_PC,
+    input      [ 7:0] WB_PC,
 
-    output  [31:0] EPC,
+    output  [ 7:0] EPC,
     output         interrupt_signal
 );
     reg [2:0] exception_signal;
-    reg [31:0] commit_PC;
+    reg [7:0] commit_PC;
 
     always @(posedge SYS_clk, posedge SYS_reset)
     begin
@@ -912,5 +912,5 @@ module exception_handle(
     end
 
     assign interrupt_signal = |exception_signal;
-    assign EPC              = (interrupt_signal)? commit_PC : 32'b0;
+    assign EPC              = (interrupt_signal)? commit_PC : 0;
 endmodule
