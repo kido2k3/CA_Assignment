@@ -23,8 +23,7 @@ module ALU_control(
                     6'b000010:  control_out <= (opcode) ? 5 : 9;//mul or srl
                     6'h1a:      control_out <= 4;//div
                     6'h0:       control_out <= 8;//sll
-                    // 6'h02:      control_out <= 9;//srl
-                    6'h000011:  control_out <= 12;//sra
+                    6'b000011:  control_out <= 12;//sra
                     6'h26:      control_out <= 10;//xor
                     6'h27:      control_out <= 11;//nor
                     default:    control_out <= 3;//no operator
