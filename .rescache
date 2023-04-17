@@ -1,1 +1,0 @@
-{"__version__":1,"totalSize":593652,"count":91,"data":{".git":[1,522514],".gitignore":[0,12],"ALU.v":[0,5411],"ALU_control.v":[0,2922],"control.v":[0,3242],"DMEM.v":[0,1399],"IMEM.v":[0,1542],"input_data.txt":[0,14],"input_text.txt":[0,84],"pipeline.v":[0,38109],"REG.v":[0,2150],"SignedExtended.v":[0,766],"sys_tb.v":[0,2128],"TESTCASE.docx":[0,13197],"~$STCASE.docx":[0,162]}}
