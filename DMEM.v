@@ -26,7 +26,9 @@ input [31:0] DMEM_data_in,
 input DMEM_mem_write, 
 input DMEM_mem_read,
 input clk,
-output[31:0] DMEM_data_out
+output[31:0] DMEM_data_out,
+// test
+output [31:0] data_in_mem
     );
    integer i; 
     reg [31:0] data [0:255];
@@ -48,4 +50,6 @@ output[31:0] DMEM_data_out
             else
                 data[address] = data[address];
         end
+//        test
+    assign data_in_mem = data[1];
 endmodule
