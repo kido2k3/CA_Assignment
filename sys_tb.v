@@ -37,7 +37,8 @@ module sys_tb();
     wire [31:0] out_ALU;
     wire out_exc;
     wire [31:0] data_in_mem;
-    system(
+    
+    system sy(
         SYS_clk,
         SYS_reset,
 
@@ -54,5 +55,17 @@ module sys_tb();
         out_ALU,
         out_exc,
         data_in_mem
-);
+    );
+    initial
+        begin
+             //ki?m tra giá tr? thanh ghi s? 8
+            SYS_reset = 0;
+            SYS_load = 0;
+            SYS_output_sel = 0;
+            #2 SYS_reset = 1;
+            #1 SYS_reset = 0;
+            SYS_clk=0;
+            forever #5 SYS_clk =~ SYS_clk;
+        end 
+    initial test_address_register = 8;
 endmodule

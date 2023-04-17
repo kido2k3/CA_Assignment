@@ -509,8 +509,8 @@ module system(
         .interrupt_signal       (interrupt_signal)
     );
     // test
-    assign out_pc = PC;
-    assign out_ins = D_instruction;
+    assign out_pc = EX_PC;
+    assign out_ins = EX_instruction;
     assign out_ALU = EX_ALUresult;
     assign out_exc = interrupt_signal;
 endmodule

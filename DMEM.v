@@ -35,9 +35,9 @@ output [31:0] data_in_mem
     initial begin
         //$readmemb("input.mem", ins);
         
-        for(i = 0; i<256; i=i+1)
-            data[i] = 0;
-        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_data.txt", data);
+        /*for(i = 0; i<256; i=i+1)
+                    data[i] = 0;*/
+        $readmemh("C:\\Users\\HP\\Desktop\\CA_BTL\\CA_Assignment\\input_data.txt", data);
     end
     wire [31:0] address;
     assign address = DMEM_address;
@@ -51,5 +51,5 @@ output [31:0] data_in_mem
                 data[address] = data[address];
         end
 //        test
-    assign data_in_mem = data[1];
+    assign data_in_mem = data[0];
 endmodule
