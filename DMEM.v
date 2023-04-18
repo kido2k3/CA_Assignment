@@ -42,10 +42,11 @@ output[31:0] DMEM_data_out
     assign DMEM_data_out = (DMEM_mem_read)?data[address]:32'b0;
     //always @(posedge clk)
     always@(posedge clk)
-        begin
-            if(DMEM_mem_write)
-                data[address] = DMEM_data_in;
-            else
-                data[address] = data[address];
-        end
+    
+    begin
+        if(DMEM_mem_write)
+            data[address] = DMEM_data_in;
+        else
+            data[address] = data[address];
+    end
 endmodule
