@@ -26,27 +26,30 @@ input [31:0] DMEM_data_in,
 input DMEM_mem_write, 
 input DMEM_mem_read,
 input clk,
+input SYS_reset,
 output[31:0] DMEM_data_out
     );
    integer i; 
     reg [31:0] data [0:255];
-    initial begin
-        //$readmemb("input.mem", ins);
-        
-        for(i = 0; i<256; i=i+1)
-            data[i] = 0;
-        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_data.txt", data);
-    end
     wire [31:0] address;
     assign address = DMEM_address;
     assign DMEM_data_out = (DMEM_mem_read)?data[address]:32'b0;
-    //always @(posedge clk)
-    always@(posedge clk)
-    
+
+    always@(negedge clk, posedge SYS_reset)
     begin
-        if(DMEM_mem_write)
-            data[address] = DMEM_data_in;
+        if (SYS_reset)
+        begin
+            for(i = 0; i<256; i=i+1)
+                data[i] = 0;
+            $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_data.txt", data);
+        end
+
         else
-            data[address] = data[address];
+        begin
+            if(DMEM_mem_write)
+                data[address] = DMEM_data_in;
+            else
+                data[address] = data[address];
+        end
     end
 endmodule

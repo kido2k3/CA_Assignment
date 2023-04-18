@@ -804,6 +804,7 @@ module memory_stage (
                 .DMEM_mem_write (MemWrite_signal), //tín hiệu đi�?u khiển cho phép ghi
                 .DMEM_mem_read  (MemRead_signal),  //tín hiệu đi�?u khiển cho phép đ�?c
                 .clk            (SYS_clk), 
+                .SYS_reset      (SYS_reset),
                 //OUTPUT
                 .DMEM_data_out  (MEM_read_data)
                );
