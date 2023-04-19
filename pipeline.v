@@ -108,7 +108,7 @@ module system(
     end
 
     //detection data hazard between EX and Decode stage
-    always @(D_instruction, EX_instruction)
+    always @(D_instruction, EX_instruction, MEM_instruction)
     begin
         if (!EX_instruction || !D_instruction)  //dothing if nop
             D_stall_counter <= D_stall_counter;
