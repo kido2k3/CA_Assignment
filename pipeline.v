@@ -84,18 +84,6 @@ module system(
     //exception detection
     wire [2:0] D_exception_signal, EX_exception_signal, MEM_exception_signal, WB_exception_signal;
 
-    //khối theo thầy yêu cầu
-    assign SYS_leds =   (SYS_reset)           ? 0                       :
-                        (SYS_output_sel == 0) ? F_instruction           :
-                        (SYS_output_sel == 1) ? D_REG_data_out1         :
-                        (SYS_output_sel == 2) ? EX_ALUresult            :
-                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
-                        (SYS_output_sel == 4) ? MEM_read_data           :
-                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
-                        (SYS_output_sel == 6) ? EX_alu_control          :
-                        (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
-
-
     dependency_detection dependency_unit(
         //INPUT
         .D_instruction  (D_instruction),
@@ -240,6 +228,18 @@ module system(
     assign out_ins = EX_instruction;
     assign out_ALU = EX_ALUresult;
     assign out_exc = interrupt_signal;
+
+
+    //khối theo thầy yêu cầu
+    assign SYS_leds =   (SYS_reset)           ? 0                       :
+                        (SYS_output_sel == 0) ? F_instruction           :
+                        (SYS_output_sel == 1) ? D_REG_data_out1         :
+                        (SYS_output_sel == 2) ? EX_ALUresult            :
+                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
+                        (SYS_output_sel == 4) ? MEM_read_data           :
+                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
+                        (SYS_output_sel == 6) ? EX_alu_control          :
+                        (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
 endmodule
 
 module fetch_stage(
