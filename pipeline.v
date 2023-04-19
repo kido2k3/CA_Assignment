@@ -91,21 +91,21 @@ module system(
                         (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
 
 
-    always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
-    begin
-        if (SYS_reset || interrupt_signal || SYS_load)
-        begin
-            D_stall_counter     <= 0;
-        end
+    // always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
+    // begin
+    //     if (SYS_reset || interrupt_signal || SYS_load)
+    //     begin
+    //         D_stall_counter     <= 0;
+    //     end
 
-        else
-        begin
-            if (D_stall_counter)
-                D_stall_counter <= D_stall_counter - 1;
-            else 
-                D_stall_counter <= D_stall_counter;
-        end
-    end
+    //     else
+    //     begin
+    //         if (D_stall_counter)
+    //             D_stall_counter <= D_stall_counter - 1;
+    //         else 
+    //             D_stall_counter <= D_stall_counter;
+    //     end
+    // end
 
     //detection data hazard between EX and Decode stage
     always @(D_instruction, EX_instruction, MEM_instruction)
