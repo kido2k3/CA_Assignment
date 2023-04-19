@@ -74,7 +74,9 @@ module system(
     //data hazard
     reg [1:0] D_to_MEM_forwardSignal;
 
-    reg D_stall; //biến dùng để điểm số lần sẽ bị stall
+    reg D_stall; //biến dùng chỉ để nên stall ở Decode stage hay không
+    reg hazard_D_EX;    //biến dùng để chỉ giữa decode và ex có phụ thuộc hay không
+    reg hazard_D_MEM;   //biến dùng để chỉ giữa decode và MEM có phụ thuộc hay không
 
     //exception detection
     wire [2:0] D_exception_signal, EX_exception_signal, MEM_exception_signal, WB_exception_signal;
@@ -110,182 +112,191 @@ module system(
     //detection data hazard between EX and Decode stage
     always @(D_instruction, EX_instruction, MEM_instruction)
     begin
-        if (!EX_instruction || !D_instruction)  //dothing if nop
-            D_stall <= D_stall;
-
-        else if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 2 stage
+        if (!D_instruction)  //dothing if nop
         begin
-            if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall <= 2'd2;
-                else
-                    D_stall <= D_stall;
-
-            end
-            
-
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 2'd2;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
-            begin
-                //sw rt -> offset(rs)
-                if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 2'd2;
-                else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall <= 2'd2;
-                else
-                    D_stall <= D_stall;
-            end
-        
-            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall <= 2'd2;
-                else
-                    D_stall <= D_stall;
-            end
-            
-            else
-                D_stall <= D_stall;
+            hazard_D_EX = 0;
+            hazard_D_MEM = 0;
         end
 
-        else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
+        else 
         begin
-            if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
+            if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load
             begin
-                if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall <= 2'd1;
-                else
-                    D_stall <= D_stall;
+                if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //if the instruction in decode is R
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
 
-            end
+                end
+                
+
+                else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
+                else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+                begin
+                    //sw rt -> offset(rs)
+                    if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_EX = 1;
+                    else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
             
-
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 ) //load and addi
-            begin
-                if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 2'd1;
+                else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+                
                 else
-                    D_stall <= D_stall;
+                    hazard_D_EX = 0;
             end
 
-            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+            else if (!EX_instruction[31:26] || EX_instruction[31:26] == 6'h1c)     //lenh trong EX la lenh R)
             begin
-                //sw rt -> offset(rs)
-                if      (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 2'd1;
-                else if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall <= 2'd1;
+                if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
+                begin
+                    if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+
+                end
+                
+                else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
+                begin
+                    if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
+                else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+                begin
+                    //sw rt -> offset(rs)
+                    if      (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
+                        hazard_D_EX = 1;
+                    else if (EX_instruction[15:11] == D_instruction[20:16]) //rd == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
+                else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+                begin
+                    if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16])   //EX.rd == D.rs or EX.rd == D.rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
                 else
-                    D_stall <= D_stall;
+                    hazard_D_EX = 0;
             end
 
-            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+            else if (EX_instruction[31:26] == 6'b001000) //neu lenh trong EX la addi
             begin
-                if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall <= 2'd1;
+                if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+
+                end
+
+                else if (D_instruction[31:28]==4'b1010) //store, may word or half word
+                begin
+                    //sw rt -> offset(rs)
+                    if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_EX = 1;
+                    else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
+                else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+
+                else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+                begin
+                    if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
+                        hazard_D_EX = 1;
+                    else
+                        hazard_D_EX = 0;
+                end
+                
                 else
-                    D_stall <= D_stall;
+                    hazard_D_EX = 0;
             end
-            
+
             else
-                D_stall <= D_stall;
+                hazard_D_EX = 0;
+
+
+            if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
+            begin
+                if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
+                begin
+                    if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
+                        hazard_D_MEM = 1;
+                    else
+                        hazard_D_MEM = 0;
+                end
+                
+                else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 ) //load and addi
+                begin
+                    if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_MEM = 1;
+                    else
+                        hazard_D_MEM = 0;
+                end
+
+                else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
+                begin
+                    //sw rt -> offset(rs)
+                    if      (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
+                        hazard_D_MEM = 1;
+                    else if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
+                        hazard_D_MEM = 1;
+                    else
+                        hazard_D_MEM = 0;
+                end
+
+                else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
+                begin
+                    if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
+                        hazard_D_MEM = 1;
+                    else
+                        hazard_D_MEM = 0;
+                end
+                
+                else
+                    hazard_D_MEM = 0;
+            end
+
+            else
+                hazard_D_MEM = 0;
         end
 
-        else if (!EX_instruction[31:26] || EX_instruction[31:26] == 6'h1c)     //lenh trong EX la lenh R)
-        begin
-            if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-
-            end
-            
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
-            begin
-                //sw rt -> offset(rs)
-                if      (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall <= 1;
-                else if (EX_instruction[15:11] == D_instruction[20:16]) //rd == rt
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
-            begin
-                if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16])   //EX.rd == D.rs or EX.rd == D.rt
-                    D_stall <= 2'b1;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else
-                D_stall <= D_stall;
-        end
-
-    
-        else if (EX_instruction[31:26] == 6'b001000) //neu lenh trong EX la addi
-        begin
-            if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-
-            end
-
-            else if (D_instruction[31:28]==4'b1010) //store, may word or half word
-            begin
-                //sw rt -> offset(rs)
-                if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 1;
-                else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall <= 1;
-                else
-                    D_stall <= D_stall;
-            end
-
-            else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
-            begin
-                if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall <= 2'b1;
-                else
-                    D_stall <= D_stall;
-            end
-            
-            else
-                D_stall <= D_stall;
-        end
-
-        else
-            D_stall <= D_stall;
+        D_stall = hazard_D_MEM || hazard_D_EX;  //chỉ cần có một sự phụ thuộc thì stall
     end
 
     //detect and forward from MEM stage to DECODE stage
