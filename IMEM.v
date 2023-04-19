@@ -39,7 +39,7 @@
 //     assign IMEM_instruction = ins[IMEM_PC>>2];
 // endmodule
 module IMEM(
-    input [31:0] IMEM_PC, //address
+    input [7:0] IMEM_PC, //address
     output [31:0] IMEM_instruction //
 );
     // parameter start_address = 32'h00400000 >> 2;
@@ -49,11 +49,11 @@ module IMEM(
     integer i;
     initial begin
         //$readmemb("input.mem", ins);
-        for(i=0; i<64 ;i=i+1)
-        begin
-            ins[i] = 0;
-        end
-        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_text.txt", ins);
+        /*for(i=0; i<64 ;i=i+1)
+                begin
+                    ins[i] = 0;
+                end*/
+        $readmemh("C:\\Users\\HP\\Desktop\\CA_BTL\\CA_Assignment\\input_text.txt", ins);
         
     end
 endmodule

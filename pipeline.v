@@ -10,43 +10,27 @@
 // chia cho 0               -> EXE ALU
 
 
-module system();
+module system(
+    input   SYS_clk,
+    input   SYS_reset,
 
-    wire[26:0] SYS_leds;
-
-    wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
-    reg        SYS_load;
-    reg [7:0]  SYS_pc_val;
-    reg [2:0]  SYS_output_sel; //trong đề là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
-    reg [4:0] test_address_register; //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
-    reg SYS_clk;
-    reg SYS_reset;
-    initial
-    begin
-         //kiểm tra giá trị thanh ghi số 8
-        SYS_reset = 0;
-        #2 SYS_reset = 1;
-        #3 SYS_reset = 0;
-
-        SYS_clk=0;
-        forever #5 SYS_clk =~ SYS_clk;
-    end  
-
-    initial
-    begin
-        test_address_register = 2;
-        $monitor("time = %d, D_exception = %b, D_instruction = %h,  EX_instruction = %h, EX_ALUres = %d, EX_ALUSRC = %d, alu_control = %d, D_REG_data_out1 = %d, D_REG_data_out2 = %d, D_control_signal2= %b, register %d has value %h",$time, D_exception_signal ,D_instruction, EX_instruction, EX_ALUresult, EX_ALUSRC, EX_ALU_control, D_REG_data_out1, D_REG_data_out2, D_control_signal[2], test_address_register, test_value_register );
-    end
-
-    // initial 
-    // begin
-    //     #100 SYS_reset = 1;
-    //     #3   SYS_reset = 0;
-    //     // $display ("time = %d, ", $time, );
-    // end
+    input        SYS_load,
+    input [7:0]  SYS_pc_val,
+    input [2:0]  SYS_output_sel, //trong đ�? là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
     
+    output[26:0] SYS_leds,
+    //test
+    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+    output [31:0] test_value_register,          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+    output [7:0] out_pc,
+    output [31:0] out_ins,    
+    output [31:0] out_ALU,
+    output out_exc,
+    output [31:0] data_in_mem
+);
+
     //FETCH stage OK
-    wire [ 7:0] PC;
+    wire [7:0] PC;
     wire [31:0] F_instruction;
 
     //DECODE stage
@@ -501,7 +485,8 @@ module system();
             .MEM_read_data      (MEM_read_data),
             .MEM_write_register (MEM_write_register),
      .MEM_exception_instruction (MEM_instruction),
-           .MEM_exception_signal(MEM_exception_signal)
+           .MEM_exception_signal(MEM_exception_signal),
+           .data_in_mem (data_in_mem)
     );
 
     WB_stage WB (//INPUT
@@ -534,6 +519,11 @@ module system();
         .EPC                    (EPC),
         .interrupt_signal       (interrupt_signal)
     );
+    // test
+    assign out_pc = EX_PC;
+    assign out_ins = EX_instruction;
+    assign out_ALU = EX_ALUresult;
+    assign out_exc = interrupt_signal;
 endmodule
 
 module fetch_stage(
@@ -564,7 +554,7 @@ module fetch_stage(
 
         else
         begin
-            if      (SYS_load)      //lệnh của người dùng
+            if      (SYS_load)      //lệnh của ngư�?i dùng
                 PC[7:0] <= SYS_pc_val;
             else if (D_stall)  //khong lam gi neu dang co stall
                 PC <= PC;
@@ -793,7 +783,9 @@ module memory_stage (
     output reg [31:0] MEM_ALUresult,
     output     [31:0] MEM_read_data,
     output reg [4:0]  MEM_write_register,
-    output     [31:0] MEM_exception_instruction
+    output     [31:0] MEM_exception_instruction,
+    //test
+    output [31:0] data_in_mem
 );
     reg [10:0] MEM_control_signal;
     reg [31:0] MEM_instruction;
@@ -838,7 +830,9 @@ module memory_stage (
                 .clk            (SYS_clk), 
                 .SYS_reset      (SYS_reset),
                 //OUTPUT
-                .DMEM_data_out  (MEM_read_data)
+                .DMEM_data_out  (MEM_read_data),
+                //test 
+                .data_in_mem (data_in_mem)
                );
             
     //xử lý exception
