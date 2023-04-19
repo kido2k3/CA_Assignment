@@ -74,7 +74,7 @@ module system(
     //data hazard
     reg [1:0] D_to_MEM_forwardSignal;
 
-    reg [1:0] D_stall_counter; //biến dùng để điểm số lần sẽ bị stall
+    reg D_stall; //biến dùng để điểm số lần sẽ bị stall
 
     //exception detection
     wire [2:0] D_exception_signal, EX_exception_signal, MEM_exception_signal, WB_exception_signal;
@@ -95,15 +95,15 @@ module system(
     // begin
     //     if (SYS_reset || interrupt_signal || SYS_load)
     //     begin
-    //         D_stall_counter     <= 0;
+    //         D_stall     <= 0;
     //     end
 
     //     else
     //     begin
-    //         if (D_stall_counter)
-    //             D_stall_counter <= D_stall_counter - 1;
+    //         if (D_stall)
+    //             D_stall <= D_stall - 1;
     //         else 
-    //             D_stall_counter <= D_stall_counter;
+    //             D_stall <= D_stall;
     //     end
     // end
 
@@ -111,16 +111,16 @@ module system(
     always @(D_instruction, EX_instruction, MEM_instruction)
     begin
         if (!EX_instruction || !D_instruction)  //dothing if nop
-            D_stall_counter <= D_stall_counter;
+            D_stall <= D_stall;
 
         else if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 2 stage
         begin
             if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 2'd2;
+                    D_stall <= 2'd2;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
 
             end
             
@@ -128,32 +128,32 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 2'd2;
+                    D_stall <= 2'd2;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
             begin
                 //sw rt -> offset(rs)
                 if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 2'd2;
+                    D_stall <= 2'd2;
                 else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall_counter <= 2'd2;
+                    D_stall <= 2'd2;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
         
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall_counter <= 2'd2;
+                    D_stall <= 2'd2;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
             
             else
-                D_stall_counter <= D_stall_counter;
+                D_stall <= D_stall;
         end
 
         else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
@@ -161,9 +161,9 @@ module system(
             if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 2'd1;
+                    D_stall <= 2'd1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
 
             end
             
@@ -171,32 +171,32 @@ module system(
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 ) //load and addi
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 2'd1;
+                    D_stall <= 2'd1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
             begin
                 //sw rt -> offset(rs)
                 if      (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 2'd1;
+                    D_stall <= 2'd1;
                 else if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall_counter <= 2'd1;
+                    D_stall <= 2'd1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21] || MEM_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall_counter <= 2'd1;
+                    D_stall <= 2'd1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
             
             else
-                D_stall_counter <= D_stall_counter;
+                D_stall <= D_stall;
         end
 
         else if (!EX_instruction[31:26] || EX_instruction[31:26] == 6'h1c)     //lenh trong EX la lenh R)
@@ -204,41 +204,41 @@ module system(
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16]) //rd == rs rd == rt
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
 
             end
             
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi 
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:28]==4'b1010) //store, may word or half word
             begin
                 //sw rt -> offset(rs)
                 if      (EX_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else if (EX_instruction[15:11] == D_instruction[20:16]) //rd == rt
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (EX_instruction[15:11] == D_instruction[25:21] || EX_instruction[15:11] == D_instruction[20:16])   //EX.rd == D.rs or EX.rd == D.rt
-                    D_stall_counter <= 2'b1;
+                    D_stall <= 2'b1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else
-                D_stall_counter <= D_stall_counter;
+                D_stall <= D_stall;
         end
 
     
@@ -247,9 +247,9 @@ module system(
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c) //R
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16]) //rt == rs rt == rt
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
 
             end
 
@@ -257,35 +257,35 @@ module system(
             begin
                 //sw rt -> offset(rs)
                 if      (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else if (EX_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_stall_counter <= 1;
+                    D_stall <= 1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
 
             else if ( D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //bne and beq, phai rieng vi can ca 2
             begin
                 if (EX_instruction[20:16] == D_instruction[25:21] || EX_instruction[20:16] == D_instruction[20:16])   //EX.rt == D.rs or EX.rt == D.rt
-                    D_stall_counter <= 2'b1;
+                    D_stall <= 2'b1;
                 else
-                    D_stall_counter <= D_stall_counter;
+                    D_stall <= D_stall;
             end
             
             else
-                D_stall_counter <= D_stall_counter;
+                D_stall <= D_stall;
         end
 
         else
-            D_stall_counter <= D_stall_counter;
+            D_stall <= D_stall;
     end
 
     //detect and forward from MEM stage to DECODE stage
@@ -388,7 +388,7 @@ module system(
         .D_Out_SignedExtended   (D_Out_SignedExtended),
         .D_instruction          (D_instruction),
         .D_PC                   (D_PC),
-        .D_stall_counter        (D_stall_counter),
+        .D_stall        (D_stall),
         .D_jump_signal          (D_control_signal[10]),
         .branch_taken           (branch_taken),
         .SYS_load               (SYS_load),
@@ -407,7 +407,7 @@ module system(
         .WB_RegWrite_signal    (WB_RegWrite_signal),
         .WB_write_register     (WB_write_register),
         .WB_write_data         (WB_write_data),
-        .D_stall_counter       (D_stall_counter),
+        .D_stall       (D_stall),
         .D_to_MEM_forwardSignal(D_to_MEM_forwardSignal),   //forward
         .MEM_ALUresult         (MEM_ALUresult),            //forward 
 
@@ -435,7 +435,7 @@ module system(
         .D_REG_data_out2        (D_REG_data_out2),
         .D_write_register       (D_write_register),
         .D_Out_SignedExtended   (D_Out_SignedExtended),
-        .D_stall_counter        (D_stall_counter),
+        .D_stall        (D_stall),
         .D_exception_signal     (D_exception_signal),
         .D_PC                   (D_PC),
         //OUTPUT
@@ -512,7 +512,7 @@ module fetch_stage(
     input      [31:0] D_instruction,
     input      [ 7:0] D_PC,
 
-    input       [1:0] D_stall_counter,
+    input             D_stall,
     input             D_jump_signal,
     input             branch_taken,
 
@@ -534,7 +534,7 @@ module fetch_stage(
         begin
             if      (SYS_load)      //lệnh của người dùng
                 PC[7:0] <= SYS_pc_val;
-            else if (D_stall_counter)  //khong lam gi neu dang co stall
+            else if (D_stall)  //khong lam gi neu dang co stall
                 PC <= PC;
             else if (branch_taken)    //là branch signal, được giải quyết ở Decode stage
                 PC <=  D_PC + 1 + (D_Out_SignedExtended);
@@ -560,7 +560,7 @@ module decode_stage (
     input             WB_RegWrite_signal,
     input [4:0]       WB_write_register,
     input [31:0]      WB_write_data,  
-    input [1:0]       D_stall_counter,
+    input             D_stall,
     input [31:0]      MEM_ALUresult,    //forward
     input [1:0]       D_to_MEM_forwardSignal,
     input             interrupt_signal,
@@ -595,7 +595,7 @@ module decode_stage (
             D_PC          <= 0;
         end
         
-        else if (D_stall_counter)
+        else if (D_stall)
         begin
             D_instruction <= D_instruction;
             D_PC          <= D_PC;
@@ -662,7 +662,7 @@ module execution_stage (
     input      [31:0] D_REG_data_out2,
     input      [4:0]  D_write_register,
     input      [31:0] D_Out_SignedExtended,
-    input      [1:0]  D_stall_counter, 
+    input             D_stall, 
     input      [2:0]  D_exception_signal,
     input      [ 7:0] D_PC,
     input             interrupt_signal,
@@ -687,7 +687,7 @@ module execution_stage (
     wire [31:0] ALUSRC;
     always @(negedge SYS_clk, posedge SYS_reset, posedge interrupt_signal)
     begin
-        if (SYS_reset || D_stall_counter || interrupt_signal)
+        if (SYS_reset || D_stall || interrupt_signal)
         begin
             EX_instruction        <= 0;
             EX_control_signal     <= 0;
