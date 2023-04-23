@@ -858,47 +858,47 @@ module forward_detection(
     always @(MEM_instruction, D_instruction)
     begin
         if (!MEM_instruction || !D_instruction) //nothing
-            D_to_MEM_forwardSignal <= 2'b00;
+            D_to_MEM_forwardSignal = 2'b00;
 
         else if (!MEM_instruction[31:26] || MEM_instruction[31:26] == 6'h1c)     //lenh trong MEM la lenh R)
         begin
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
             begin
                 if (MEM_instruction[15:11] ==D_instruction[25:21]) //rd == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;
+                    D_to_MEM_forwardSignal[1] = 1'b1;
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
 
                 if (MEM_instruction[15:11] == D_instruction[20:16]) //rd == rt
-                    D_to_MEM_forwardSignal[0] <= 1'b1;
+                    D_to_MEM_forwardSignal[0] = 1'b1;
                 else
-                    D_to_MEM_forwardSignal[0] <= 1'b0;                   //khong forward
+                    D_to_MEM_forwardSignal[0] = 1'b0;                   //khong forward
             end
             
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000) //load and addi
             begin
-                D_to_MEM_forwardSignal[0] <= 0;
+                D_to_MEM_forwardSignal[0] = 0;
                 if (MEM_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[1] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
             end
 
             else if (D_instruction[31:28]==4'b1010) //store in Decode stage
             begin //sw rt -> offset(rs)
                 if (MEM_instruction[15:11] == D_instruction[25:21])   //rd == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[1] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
                 
                 if (MEM_instruction[15:11] == D_instruction[20:16])   //rd == rt
-                    D_to_MEM_forwardSignal[0] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[0] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[0] <= 1'b0;
+                    D_to_MEM_forwardSignal[0] = 1'b0;
             end
 
             else
-                D_to_MEM_forwardSignal <= 2'b00;
+                D_to_MEM_forwardSignal = 2'b00;
         end
     
         else if (MEM_instruction[31:26] == 6'b001000) //neu lenh trong MEM la addi
@@ -906,43 +906,43 @@ module forward_detection(
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
             begin
                 if (MEM_instruction[20:16] == D_instruction[25:21]) //rt == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;
+                    D_to_MEM_forwardSignal[1] = 1'b1;
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
 
                 if (MEM_instruction[20:16] == D_instruction[20:16]) //rt == rt
-                    D_to_MEM_forwardSignal[0] <= 1'b1;
+                    D_to_MEM_forwardSignal[0] = 1'b1;
                 else
-                    D_to_MEM_forwardSignal[0] <= 1'b0;
+                    D_to_MEM_forwardSignal[0] = 1'b0;
             end
             
             else if (D_instruction[31:28]==4'b1010) //store in Decode stage
             begin //sw rt -> offset(rs)
                 if (MEM_instruction[20:16] == D_instruction[25:21])   //rt == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[1] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
                 
                 if (MEM_instruction[20:16] == D_instruction[20:16])   //rt == rt
-                    D_to_MEM_forwardSignal[0] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[0] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[0] <= 1'b0;
+                    D_to_MEM_forwardSignal[0] = 1'b0;
             end
 
             else if (D_instruction[31:28] == 4'b1000 || D_instruction[31:26] == 6'b001000 ) //load and addi
             begin
-                D_to_MEM_forwardSignal[0] <= 0;
+                D_to_MEM_forwardSignal[0] = 0;
                 if      (MEM_instruction[20:16] == D_instruction[25:21])   //rd == rs
-                    D_to_MEM_forwardSignal[1] <= 1'b1;                      
+                    D_to_MEM_forwardSignal[1] = 1'b1;                      
                 else
-                    D_to_MEM_forwardSignal[1] <= 1'b0;
+                    D_to_MEM_forwardSignal[1] = 1'b0;
             end
             
             else
-                D_to_MEM_forwardSignal <= 2'b00;   //nothing
+                D_to_MEM_forwardSignal = 2'b00;   //nothing
         end
 
         else
-            D_to_MEM_forwardSignal <= 2'b00;
+            D_to_MEM_forwardSignal = 2'b00;
     end
 endmodule
