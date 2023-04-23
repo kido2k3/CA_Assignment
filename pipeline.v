@@ -10,23 +10,40 @@
 // chia cho 0               -> EXE ALU
 
 
-module system(
-    input   SYS_clk,
-    input   SYS_reset,
+module system();
+    reg   SYS_clk;
+    reg   SYS_reset;
 
-    input        SYS_load,
-    input [7:0]  SYS_pc_val,
-    input [2:0]  SYS_output_sel, //trong đ�? là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
-    
-    output[26:0] SYS_leds,
+    reg        SYS_load;
+    reg [7:0]  SYS_pc_val;
+    reg [2:0]  SYS_output_sel; //trong đ�? là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
+    reg [4:0] test_address_register; //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
+
+    wire[26:0] SYS_leds;
     //test
-    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
-    output [31:0] test_value_register,          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
-    output [7:0] out_pc,
-    output [31:0] out_ins,    
-    output [31:0] out_ALU,
-    output out_exc
-);
+    wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+    wire  [7:0] out_pc;
+    wire [31:0] out_ins;    
+    wire [31:0] out_ALU;
+    wire out_ex;
+
+    initial
+        begin
+             //ki?m tra gi� tr? thanh ghi s? 8
+            SYS_reset = 0;
+            SYS_load = 0;
+            SYS_output_sel = 0;
+            #2 SYS_reset = 1;
+            #1 SYS_reset = 0;
+            SYS_clk=0;
+            forever #5 SYS_clk =~ SYS_clk;
+        end 
+
+    initial
+    begin 
+        test_address_register = 8;
+        $monitor("time = %d, F_instruction = %h", $time, F_instruction);
+    end
 
     //FETCH stage OK
     wire [7:0] PC;
