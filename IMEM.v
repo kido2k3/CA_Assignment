@@ -48,12 +48,10 @@ module IMEM(
 
     integer i;
     initial begin
-        //$readmemb("input.mem", ins);
-        /*for(i=0; i<64 ;i=i+1)
-                begin
-                    ins[i] = 0;
-                end*/
-        $readmemh("C:\\Users\\HP\\Desktop\\CA_BTL\\CA_Assignment\\input_text.txt", ins);
-        
+        for(i=0; i<64 ;i=i+1)
+        begin
+            ins[i] = 0;
+        end
+        $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_text.txt", ins);
     end
 endmodule
