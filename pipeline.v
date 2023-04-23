@@ -857,6 +857,7 @@ module forward_detection(
 );
     always @(MEM_instruction, D_instruction)
     begin
+        D_to_MEM_forwardSignal = 2'b00; //prevent latch
         if (!MEM_instruction || !D_instruction) //nothing
             D_to_MEM_forwardSignal = 2'b00;
 
