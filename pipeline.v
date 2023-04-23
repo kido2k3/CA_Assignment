@@ -156,6 +156,8 @@ module system(
         .D_stall                (D_stall),
         .D_exception_signal     (D_exception_signal),
         .D_PC                   (D_PC),
+        .MEM_to_EX_forwardSignal(MEM_to_EX_forwardSignal),
+        .MEM_ALUresult          (MEM_ALUresult),
         //OUTPUT
     .EX_exception_instruction   (EX_instruction), 
     .EX_exception_control_signal(EX_control_signal),
