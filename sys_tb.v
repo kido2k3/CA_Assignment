@@ -38,21 +38,21 @@ module sys_tb();
     wire out_exc;
     
     system sy(
-        SYS_clk,
-        SYS_reset,
+        .SYS_clk                (SYS_clk),
+        .SYS_reset              (SYS_reset),
 
-        SYS_load,
-        SYS_pc_val,
-        SYS_output_sel, //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
+        .SYS_load               (SYS_load),
+        .SYS_pc_val             (SYS_pc_val),
+        .SYS_output_sel         (SYS_output_sel), //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
     
-        SYS_leds,
+        .SYS_leds               (SYS_leds),
     //test
-        test_address_register, //chỉ d� nh cho test, test xong xóa, �'ể xem �'ịa chỉ register �'ã chạy �'úng chưa
-        test_value_register,          //chỉ d� nh cho test, test xong xóa, �'ể xem giá trị register �'ã chạy �'úng chưa
-        out_pc,
-        out_ins,    
-        out_ALU,
-        out_exc
+        .test_address_register  (test_address_register), //chỉ d� nh cho test, test xong xóa, �'ể xem �'ịa chỉ register �'ã chạy �'úng chưa
+        .test_value_register    (test_value_register),          //chỉ d� nh cho test, test xong xóa, �'ể xem giá trị register �'ã chạy �'úng chưa
+        .out_pc                 (out_pc),
+        .out_ins                (out_ins),    
+        .out_ALU                (out_ALU),
+        .out_exc                (out_exc)
     );
     initial
         begin
