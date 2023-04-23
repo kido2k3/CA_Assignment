@@ -42,7 +42,7 @@ module system();
     initial
     begin 
         test_address_register = 8;
-        $monitor("time = %d, clk = %b, F_ins = %h, D_ins = %h, EX_ins = %h, WB_ins = %h, D_stall = %b", $time, SYS_clk, F_instruction, D_instruction, EX_instruction, WB_instruction, D_stall);
+        $monitor("time = %d, F_ins = %h, D_ins = %h, EX_ins = %h, WB_ins = %h, D_stall = %b, test value = %h", $time, F_instruction, D_instruction, EX_instruction, WB_instruction, D_stall, test_value_register);
     end
 
     //FETCH stage OK
