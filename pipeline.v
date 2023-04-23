@@ -25,8 +25,7 @@ module system(
     output [7:0] out_pc,
     output [31:0] out_ins,    
     output [31:0] out_ALU,
-    output out_exc,
-    output [31:0] data_in_mem
+    output out_exc
 );
 
     //FETCH stage OK
@@ -189,8 +188,7 @@ module system(
             .MEM_read_data      (MEM_read_data),
             .MEM_write_register (MEM_write_register),
      .MEM_exception_instruction (MEM_instruction),
-           .MEM_exception_signal(MEM_exception_signal),
-           .data_in_mem (data_in_mem)
+           .MEM_exception_signal(MEM_exception_signal)
     );
 
     WB_stage WB (//INPUT
@@ -499,9 +497,7 @@ module memory_stage (
     output reg [31:0] MEM_ALUresult,
     output     [31:0] MEM_read_data,
     output reg [4:0]  MEM_write_register,
-    output     [31:0] MEM_exception_instruction,
-    //test
-    output [31:0] data_in_mem
+    output     [31:0] MEM_exception_instruction
 );
     reg [10:0] MEM_control_signal;
     reg [31:0] MEM_instruction;
@@ -546,9 +542,7 @@ module memory_stage (
                 .clk            (SYS_clk), 
                 .SYS_reset      (SYS_reset),
                 //OUTPUT
-                .DMEM_data_out  (MEM_read_data),
-                //test 
-                .data_in_mem (data_in_mem)
+                .DMEM_data_out  (MEM_read_data)
                );
             
     //xử lý exception
