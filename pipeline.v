@@ -681,6 +681,9 @@ module dependency_detection(    //combinational circuit
 
     always @(D_instruction, EX_instruction, MEM_instruction)
     begin
+        hazard_D_EX = 0; //prevent latch
+        hazard_D_MEM = 0;
+
         if (!D_instruction)  //dothing if nop
         begin
             hazard_D_EX = 0;
@@ -689,7 +692,9 @@ module dependency_detection(    //combinational circuit
 
         else 
         begin
-            if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load
+            if (!EX_instruction)
+                hazard_D_EX = 0;
+            else if (EX_instruction[31:28] == 4'b1000)   //neu lenh truoc la load
             begin
                 if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //if the instruction in decode is R
                 begin
@@ -819,8 +824,9 @@ module dependency_detection(    //combinational circuit
             else
                 hazard_D_EX = 0;
 
-
-            if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
+            if (!MEM_instruction)
+                hazard_D_MEM = 0;
+            else if (MEM_instruction[31:28] == 4'b1000)   //neu lenh truoc la load, cho 1 stage
             begin
                 if      (!D_instruction[31:26] ||  D_instruction[31:26] == 6'h1c) //R
                 begin
