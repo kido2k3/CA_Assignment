@@ -13,16 +13,18 @@
 module system(
     input   SYS_clk,
     input   SYS_reset,
-
-    input        SYS_load,
-    input [7:0]  SYS_pc_val,
-    input [2:0]  SYS_output_sel, //trong đề là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
-    
-    output[26:0] SYS_leds,
-
-    input [4:0] test_address_register, //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
-    output [31:0] test_value_register          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+    output  [3:0] test_reg
 );
+    wire [31:0] test_value_register;          //chỉ dành cho test, test xong xóa, để xem giá trị register đã chạy đúng chưa
+    assign test_reg = test_value_register[3:0];
+
+    wire        SYS_load;
+    wire [7:0]  SYS_pc_val;
+    wire [2:0]  SYS_output_sel; //trong đề là 7 bit nhưng chỉ cần 3 bit là đủ hiện thực
+    
+    wire[26:0] SYS_leds;
+
+    wire [4:0] test_address_register = 8; //chỉ dành cho test, test xong xóa, để xem địa chỉ register đã chạy đúng chưa
 
     //FETCH stage OK
     wire [ 7:0] PC;
