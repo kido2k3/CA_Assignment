@@ -9,17 +9,47 @@
 // tràn số                  -> EXE ALU
 // chia cho 0               -> EXE ALU
 
+module freq_divider(
+    input SYS_clk, SYS_reset,
+    output reg divided_clk
+);
+    parameter divisor = 250_000_000;
+    parameter m = divisor/2;
+    integer count;
+    
+    always @(negedge SYS_clk, posedge SYS_reset)
+    begin
+        if (SYS_reset)
+        begin
+            count        <= 0;
+            divided_clk  <= 1;
+        end
+
+        else
+        begin
+            if (count >= m)
+            begin
+                count        <= 0;
+                divided_clk  <= ~divided_clk;
+            end
+            else count <= count + 1;
+        end
+    end
+endmodule
+
 
 module system(
-    input   SYS_clk,
+    input   clk,
     input   SYS_reset,
     input [2:0]  SYS_output_sel, //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
     
     output CLK_led,
     output[26:0] SYS_leds
 );
+    wire SYS_clk;
+    freq_divider #(.divisor(1))divide(clk, SYS_reset, SYS_clk);
     //---------------------------------------------------------------------
-    reg [31:0] testt_reg_add;
+    wire  [31:0] testt_reg_add = 16;
     wire[31:0] testt_reg;
     //chi de test
     //khi chay that; sua tat ca thanh output; reg; xoa output di
@@ -89,7 +119,8 @@ module system(
     assign CLK_led = SYS_clk;
 
     assign SYS_leds =   (SYS_reset)           ? 0                       :
-                        (SYS_output_sel == 0) ? F_instruction           :
+                        // (SYS_output_sel == 0) ? F_instruction           :
+                        (SYS_output_sel == 0) ? testt_reg               :
                         (SYS_output_sel == 1) ? D_REG_data_out1         :
                         (SYS_output_sel == 2) ? EX_ALUresult            :
                         (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
