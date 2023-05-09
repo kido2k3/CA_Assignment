@@ -51,7 +51,7 @@ module system(
     wire EX_non_align_word;
     wire [7:0] EX_status_out;
     wire [3:0]  EX_alu_control;
-    wire [31:0] EX_b_operand; EX_a_operand;
+    wire [31:0] EX_b_operand, EX_a_operand;
 
 
     //MEMORY stage
