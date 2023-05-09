@@ -47,7 +47,8 @@ module system(
     output[26:0] SYS_leds
 );
     wire SYS_clk;
-    freq_divider #(.divisor(1))divide(clk, SYS_reset, SYS_clk);
+    parameter divisor = 250_000_000;
+    freq_divider #(.divisor(divisor))divide(clk, SYS_reset, SYS_clk);
     //---------------------------------------------------------------------
     wire  [31:0] testt_reg_add = 16;
     wire[31:0] testt_reg;
