@@ -39,7 +39,7 @@ output[31:0] DMEM_data_out
     begin
         if (SYS_reset)
         begin
-            $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/CA_Assignment/input_data.txt", data);
+            $readmemh("C:/Users/tuankiet/Desktop/MIPS CPU/input_data.txt", data);
         end
 
         else
