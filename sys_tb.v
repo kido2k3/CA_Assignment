@@ -26,13 +26,20 @@ module sys_tb();
 
     reg [2:0]  SYS_output_sel; //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
     
+    wire [7:0] F_PC;
+    wire [31:0] F_instruction;
     wire [31:0] D_instruction;
-    wire [31:0] EX_instruction;
+    wire [31:0] EX_instruction, MEM_instruction, WB_instruction;
+    
+    wire        WB_RegWrite_signal;
+    wire [4:0]  WB_write_register;
+    wire [31:0] WB_write_data;
+    
     wire [2:0]EX_exception_signal;
-    wire [7:0] EX_status_out;
     wire [31:0] EX_a_operand, EX_b_operand;
     reg [31:0] testt_reg_add;
     wire [31:0]testt_reg;
+
     //test
    system sy(
         //INPUT, giữ nguyên
@@ -42,14 +49,19 @@ module sys_tb();
         .testt_reg_add(testt_reg_add),
 
         //OUTPUT
-                .testt_reg(testt_reg),
-
+        .testt_reg(testt_reg),
+        .PC (F_PC),
+        .F_instruction(F_instruction),
         .D_instruction(D_instruction),
         .EX_instruction(EX_instruction),
+        .MEM_instruction(MEM_instruction),
+        .WB_instruction(WB_instruction),
         .EX_exception_signal(EX_exception_signal),
-        .EX_status_out(EX_status_out),
         .EX_a_operand(EX_a_operand),
-        .EX_b_operand(EX_b_operand)
+        .EX_b_operand(EX_b_operand),
+        .WB_RegWrite_signal(WB_RegWrite_signal),
+        .WB_write_register(WB_write_register),
+        .WB_write_data(WB_write_data)
     );
     initial begin
         SYS_clk=0;
