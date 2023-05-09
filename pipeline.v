@@ -90,11 +90,11 @@ module system(
 
     assign SYS_leds =   (SYS_reset)           ? 0                       :
                         (SYS_output_sel == 0) ? F_instruction           :
-                        (SYS_output_sel == 1) ? EX_exception_signal     :
-                        (SYS_output_sel == 2) ? EX_instruction            :
-                        (SYS_output_sel == 3) ? D_instruction  :
-                        (SYS_output_sel == 4) ? MEM_instruction           :
-                        (SYS_output_sel == 5) ? WB_instruction:
+                        (SYS_output_sel == 1) ? D_REG_data_out1         :
+                        (SYS_output_sel == 2) ? EX_ALUresult            :
+                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
+                        (SYS_output_sel == 4) ? MEM_read_data           :
+                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
                         (SYS_output_sel == 6) ? EX_alu_control          :
                         (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
     dependency_detection dependency_unit(
