@@ -122,10 +122,32 @@ set_property -dict { PACKAGE_PIN W8    IOSTANDARD LVCMOS33 } [get_ports { SYS_le
 #set_property -dict { PACKAGE_PIN Y9    IOSTANDARD LVCMOS33 } [get_ports { ck_io41 }]; #IO_L14P_T2_SRCC_13  Sch=CK_IO41
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[31]_i_3_n_0]
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[29]_i_3_n_0]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[27]_i_3_n_0]
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/EX_Out_SignedExtended_reg[31]_8]
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/D_instruction[31]_i_10_n_0]
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_ALUresult_reg[12]]
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/EX_Out_SignedExtended_reg[31]_1]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/D_instruction[31]_i_19_n_0]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_ALUresult_reg[12]]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction_reg[16]]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_64]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[25]_i_3]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[20]_i_1]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/pre_exception_signal_reg[1]_0]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_17]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_16]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets MEM/MEM_instruction[25]_i_15]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets MEM/MEM_instruction[25]_i_6]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_18]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_27]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[25]_i_28]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_29]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_30]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[30]_i_2]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[25]_i_65]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/MEM_instruction[25]_i_64]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets MEM/MEM_instruction[25]_i_63]
+
 
 ## ChipKit Outer Analog Header - as Single-Ended Analog Inputs
 ## NOTE: These ports can be used as single-ended analog inputs with voltages from 0-3.3V (ChipKit analog pins A0-A5) or as digital I/O.
