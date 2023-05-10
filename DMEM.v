@@ -35,7 +35,7 @@ output[31:0] DMEM_data_out
     assign address = DMEM_address;
     assign DMEM_data_out = (DMEM_mem_read)?data[address]:32'b0;
 
-    always@(negedge clk, posedge SYS_reset)
+    always@(negedge clk)
     begin
         if (SYS_reset)
         begin

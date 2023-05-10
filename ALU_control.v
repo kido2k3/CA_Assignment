@@ -12,21 +12,21 @@ module ALU_control(
     always @(ALUop, funct)
     begin
         casex (ALUop)
-            2'b00: control_out <= 4'b0010;
-            2'bx1: control_out <= 4'b0110;
+            2'b00: control_out = 4'b0010;
+            2'bx1: control_out = 4'b0110;
             2'b1x: case (funct)
-                    6'b100000:  control_out <= 2;//add
-                    6'b100010:  control_out <= 6;//sub
-                    6'b100100:  control_out <= 0;//and
-                    6'b100101:  control_out <= 1;//or
-                    6'b101010:  control_out <= 7;//slt
-                    6'b000010:  control_out <= (opcode) ? 5 : 9;//mul or srl
-                    6'h1a:      control_out <= 4;//div
-                    6'h0:       control_out <= 8;//sll
-                    6'b000011:  control_out <= 12;//sra
-                    6'h26:      control_out <= 10;//xor
-                    6'h27:      control_out <= 11;//nor
-                    default:    control_out <= 3;//no operator
+                    6'b100000:  control_out = 2;//add
+                    6'b100010:  control_out = 6;//sub
+                    6'b100100:  control_out = 0;//and
+                    6'b100101:  control_out = 1;//or
+                    6'b101010:  control_out = 7;//slt
+                    6'b000010:  control_out = (opcode) ? 5 : 9;//mul or srl
+                    6'h1a:      control_out = 4;//div
+                    6'h0:       control_out = 8;//sll
+                    6'b000011:  control_out = 12;//sra
+                    6'h26:      control_out = 10;//xor
+                    6'h27:      control_out = 11;//nor
+                    default:    control_out = 3;//no operator
                 endcase
         endcase
     end

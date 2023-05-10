@@ -52,4 +52,5 @@ module sys_tb();
             #1 SYS_reset = 1;
             #2 SYS_reset = 0;
         end 
+    initial #250 $finish;
 endmodule
