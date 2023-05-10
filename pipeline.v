@@ -211,6 +211,7 @@ module system(
     .EX_exception_control_signal(EX_control_signal),
         .EX_ALUresult           (EX_ALUresult),
         .EX_operand2            (EX_operand2),
+        .EX_forwarded_operand2  (EX_forwarded_operand2),
         .EX_write_register      (EX_write_register),
         .EX_exception_signal    (EX_exception_signal),
         .EX_PC                  (EX_PC),
@@ -229,7 +230,7 @@ module system(
             .EX_write_register  (EX_write_register),
             .EX_control_signal  (EX_control_signal),
             .EX_ALUresult       (EX_ALUresult),
-            .EX_operand2        (EX_operand2),
+            .EX_forwarded_operand2(EX_forwarded_operand2),
             .EX_exception_signal(EX_exception_signal),
             .EX_non_align_word  (EX_non_align_word),
             .EX_PC              (EX_PC),
@@ -449,6 +450,7 @@ module execution_stage (
     output     [31:0] EX_exception_instruction,
     output     [31:0] EX_ALUresult,
     output reg [31:0] EX_operand2,
+    output     [31:0] EX_forwarded_operand2,
     output reg [4:0]  EX_write_register,  //để sử dụng ở WB
     output [7:0] status_out,
     output [3:0] alu_control,
@@ -498,7 +500,8 @@ module execution_stage (
 
     assign ALUSRC[31:0] = (EX_control_signal[2])       ? EX_Out_SignedExtended[31:0] : 
                           (MEM_to_EX_forwardSignal[0]) ? MEM_ALUresult               : EX_operand2[31:0];
-
+    
+    assign EX_forwarded_operand2 = (MEM_to_EX_forwardSignal[0]) ? MEM_ALUresult : EX_operand2[31:0];
     
     assign rs = (MEM_to_EX_forwardSignal[1] ) ?  MEM_ALUresult :  EX_operand1;//decide to forward
 
@@ -529,7 +532,7 @@ module memory_stage (
     input      [4:0]  EX_write_register,
     input      [10:0] EX_control_signal,
     input      [31:0] EX_ALUresult,
-    input      [31:0] EX_operand2,
+    input      [31:0] EX_forwarded_operand2,
     input             EX_non_align_word,
     input      [2:0]  EX_exception_signal,
     input      [ 7:0] EX_PC,
@@ -569,7 +572,7 @@ module memory_stage (
             MEM_instruction    <= EX_instruction;
             MEM_control_signal <= EX_control_signal;
             MEM_ALUresult      <= EX_ALUresult;
-            MEM_write_data     <= EX_operand2;
+            MEM_write_data     <= EX_forwarded_operand2;
             MEM_write_register <= EX_write_register;
             non_align_word     <= EX_non_align_word;
           pre_exception_signal <= EX_exception_signal;
