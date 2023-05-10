@@ -77,6 +77,7 @@ module system(
     wire [10:0] EX_control_signal;  //OK; như đặc tả
     wire [31:0] EX_ALUresult;       //OK   
     wire [31:0] EX_operand2;
+    wire [31:0] EX_forwarded_operand2;
     wire [ 7:0] EX_PC;
     wire EX_non_align_word;
     wire [7:0] EX_status_out;
