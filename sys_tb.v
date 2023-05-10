@@ -48,7 +48,7 @@ module sys_tb();
         begin
              //ki?m tra gi? tr? thanh ghi s? 8
             SYS_reset = 0;
-            SYS_output_sel = 7;
+            SYS_output_sel = 0;
             #1 SYS_reset = 1;
             #2 SYS_reset = 0;
         end 
