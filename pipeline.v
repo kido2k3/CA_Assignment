@@ -17,7 +17,7 @@ module freq_divider(
     parameter m = divisor/2;
     integer count;
     
-    always @(negedge SYS_clk, posedge SYS_reset)
+    always @(negedge SYS_clk)
     begin
         if (SYS_reset)
         begin
