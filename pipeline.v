@@ -9,83 +9,87 @@
 // tràn số                  -> EXE ALU
 // chia cho 0               -> EXE ALU
 
-
 module system(
-    input   SYS_clk,
+    input   clk,
     input   SYS_reset,
     input [2:0]  SYS_output_sel, //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
     
     output CLK_led,
-    output[26:0] SYS_leds,
-    input [31:0] testt_reg_add,
-    output[31:0] testt_reg,
+    output[26:0] SYS_leds
+);
+    wire SYS_clk;
+    parameter divisor = 250_000_000;
+    freq_divider #(.divisor(divisor))divide(clk, SYS_clk);
+
+    wire [31:0] testt_reg_add = 8;
+    wire [31:0] testt_reg;
+
     //---------------------------------------------------------------------
     //chi de test
-    //khi chay that, sua tat ca thanh output, reg, xoa output di
-    output reg       SYS_load,
-    output reg [7:0]  SYS_pc_val,
+    //khi chay that, sua tat ca thanh output; reg; xoa output di
+    reg       SYS_load;
+    reg [7:0]  SYS_pc_val;
     //FETCH stage OK
-    output [7:0] PC,
-    output [31:0] F_instruction,
+    wire [7:0] PC;
+    wire [31:0] F_instruction;
 
     //DECODE stage
-    output [31:0] D_instruction,          //OK, fixed
-    output [31:0] D_REG_data_out1,        //chưa biết đúng sai, tạm th�?i là đúng
-    output [31:0] D_REG_data_out2,        //chưa biết đúng sai, tạm th�?i là đúng    
-    output [4:0]  D_write_register,       //OK, đúng cho cả addi và lw
-    output [31:0] D_Out_SignedExtended,   //tạm th�?i ok, trong trư�?ng hợp đơn giản
-    output [10:0] D_control_signal,       //OK
-    output        D_isEqual_onBranch,     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
-    output [ 7:0] D_PC,
-    output        branch_taken,
-    output        D_jump_signal,
+    wire [31:0] D_instruction;          //OK; fixed
+    wire [31:0] D_REG_data_out1;        //chưa biết đúng sai; tạm th�?i là đúng
+    wire [31:0] D_REG_data_out2;        //chưa biết đúng sai; tạm th�?i là đúng    
+    wire [4:0]  D_write_register;       //OK; đúng cho cả addi và lw
+    wire [31:0] D_Out_SignedExtended;   //tạm th�?i ok; trong trư�?ng hợp đơn giản
+    wire [10:0] D_control_signal;       //OK
+    wire        D_isEqual_onBranch;     //tín hiệu so sánh 2 hạng tử của branch ở decode stage
+    wire [ 7:0] D_PC;
+    wire        branch_taken;
+    wire        D_jump_signal;
     
     //EXECUTION stage
-    output [31:0] EX_instruction,     //OK
-    output [4:0]  EX_write_register,  //OK
-    output [10:0] EX_control_signal,  //OK, như đặc tả
-    output [31:0] EX_ALUresult,       //OK   
-    output [31:0] EX_operand2,
-    output [31:0] EX_forwarded_operand2,
-    output [ 7:0] EX_PC,
-    output EX_non_align_word,
-    output [7:0] EX_status_out,
-    output [3:0]  EX_alu_control,
-    output [31:0] EX_b_operand, EX_a_operand,
+    wire [31:0] EX_instruction;     //OK
+    wire [4:0]  EX_write_register;  //OK
+    wire [10:0] EX_control_signal;  //OK; như đặc tả
+    wire [31:0] EX_ALUresult;       //OK   
+    wire [31:0] EX_operand2;
+    wire [31:0] EX_forwarded_operand2;
+    wire [ 7:0] EX_PC;
+    wire EX_non_align_word;
+    wire [7:0] EX_status_out;
+    wire [3:0]  EX_alu_control;
+    wire [31:0] EX_b_operand, EX_a_operand;
 
 
     //MEMORY stage
-    output [10:0] MEM_control_signal, //ok
-    output [31:0] MEM_ALUresult,      //OK
-    output [31:0] MEM_read_data,      //OK
-    output [4:0]  MEM_write_register, //OK
-    output [31:0] MEM_instruction,    //OK, 
-    output [ 7:0] MEM_PC,
-    output [31:0] MEM_write_data,    // fortest
+    wire [10:0] MEM_control_signal; //ok
+    wire [31:0] MEM_ALUresult;      //OK
+    wire [31:0] MEM_read_data;      //OK
+    wire [4:0]  MEM_write_register; //OK
+    wire [31:0] MEM_instruction;    //OK; 
+    wire [ 7:0] MEM_PC;
+    wire [31:0] MEM_write_data;    // fortest
 
     //Write Back stage
-    output        WB_RegWrite_signal,
-    output [4:0]  WB_write_register,
-    output [31:0] WB_write_data,
-    output [31:0] WB_instruction,
-    output [ 7:0] WB_PC,
-    output [10:0] WB_control_signal, //for test, not used later
+    wire        WB_RegWrite_signal;
+    wire [4:0]  WB_write_register;
+    wire [31:0] WB_write_data;
+    wire [31:0] WB_instruction;
+    wire [ 7:0] WB_PC;
+    wire [10:0] WB_control_signal; //for test; not used later
 
     //for exception
-    output [ 7:0] EPC,
-    output interrupt_signal,
-    output [7:0] commit_PC,
+    wire [ 7:0] EPC;
+    wire interrupt_signal;
+    wire [7:0] commit_PC;
 
     //data hazard
-    output [1:0] MEM_to_D_forwardSignal,
-    output [1:0] MEM_to_EX_forwardSignal,
+    wire [1:0] MEM_to_D_forwardSignal;
+    wire [1:0] MEM_to_EX_forwardSignal;
 
-    output D_stall, //biến dùng chỉ để nên stall ở Decode stage hay không
+    wire D_stall; //biến dùng chỉ để nên stall ở Decode stage hay không
 
     //exception detection
-    output [2:0] D_exception_signal, MEM_exception_signal, WB_exception_signal, EX_exception_signal
+    wire [2:0] D_exception_signal, MEM_exception_signal, WB_exception_signal, EX_exception_signal;
     //khối theo thầy yêu cầu
-);
 
 
     assign CLK_led = SYS_clk;
@@ -1071,5 +1075,27 @@ module forward_detection(
 
         else
             MEM_to_EX_forwardSignal = 2'b00;
+    end
+endmodule
+
+
+module freq_divider(
+    input SYS_clk,// SYS_reset,
+    output reg divided_clk
+);
+    parameter divisor = 250_000_000;
+    parameter m = divisor/2;
+    integer count;
+    
+    initial count = 0;
+    
+    always @(negedge SYS_clk)
+    begin
+        if (count >= m)
+        begin
+            count        <= 0;
+            divided_clk  <= ~divided_clk;
+        end
+        else count <= count + 1;
     end
 endmodule
