@@ -42,32 +42,14 @@ module sys_tb();
     wire [31:0]testt_reg;
 
     //test
-   system sy(
+   system #(.divisor(1))sy(
         //INPUT, giữ nguyên
-        .SYS_clk                (SYS_clk),
+        .clk                   (SYS_clk),
         .SYS_reset              (SYS_reset),
         .SYS_output_sel         (SYS_output_sel), //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
-        .testt_reg_add          (testt_reg_add),
 
         //OUTPUT
-        // .PC (F_PC),
-        .F_instruction          (F_instruction),
-        .D_instruction          (D_instruction),
-        .EX_instruction         (EX_instruction),
-        .MEM_instruction        (MEM_instruction),
-        .WB_instruction         (WB_instruction),
-
-        // .D_stall                (D_stall),
-        .WB_RegWrite_signal     (WB_RegWrite_signal),
-        .WB_write_data          (WB_write_data),
-        .WB_write_register      (WB_write_register),
-        .WB_exception_signal    (WB_exception_signal),
-        .EX_control_signal      (EX_control_signal),
-        // .D_REG_data_out1        (D_REG_data_out1),
-        // .D_REG_data_out2        (D_REG_data_out2),
-        // .MEM_to_D_forwardSignal (MEM_to_D_forwardSignal),
-
-        .testt_reg              (testt_reg)
+        .SYS_leds               (SYS_leds)
 
     );
     initial begin
@@ -78,11 +60,10 @@ module sys_tb();
     initial
         begin
              //ki?m tra gi? tr? thanh ghi s? 8
-            testt_reg_add = 8;
             SYS_reset = 0;
-            SYS_output_sel = 2;
+            SYS_output_sel = 0;
             #1 SYS_reset = 1;
-            #2 SYS_reset = 0;
+            #11 SYS_reset = 0;
         end 
     initial #250 $finish;
 endmodule
