@@ -9,6 +9,7 @@
 // tràn số                  -> EXE ALU
 // chia cho 0               -> EXE ALU
 
+
 module freq_divider(
     input SYS_clk,// SYS_reset,
     output reg divided_clk
@@ -29,8 +30,6 @@ module freq_divider(
         else count <= count + 1;
     end
 endmodule
-
-
 module system(
     input   clk,
     input   SYS_reset,
@@ -42,10 +41,13 @@ module system(
     wire SYS_clk;
     parameter divisor = 250_000_000;
     freq_divider #(.divisor(divisor))divide(clk, SYS_clk);
+
+
+    wire [31:0] testt_reg_add = 8;
+    wire [31:0] testt_reg;
+
     //---------------------------------------------------------------------
-    wire[31:0] testt_reg;
-    //chi de test
-    //khi chay that; sua tat ca thanh output; reg; xoa output di
+
     reg       SYS_load;
     reg [7:0]  SYS_pc_val;
     //FETCH stage OK
@@ -86,16 +88,16 @@ module system(
     wire [31:0] MEM_instruction;    //OK; 
     wire [ 7:0] MEM_PC;
 
+    wire [31:0] MEM_write_data;    // fortest
+
     //Write Back stage
     wire        WB_RegWrite_signal;
     wire [4:0]  WB_write_register;
     wire [31:0] WB_write_data;
     wire [31:0] WB_instruction;
     wire [ 7:0] WB_PC;
-    wire [31:0] MEM_write_data;    // fortest
 
-    //Write Back stage
-    wire [10:0] WB_control_signal; //for test, not used later
+    wire [10:0] WB_control_signal; //for test; not used later
 
     //for exception
     wire [ 7:0] EPC;
@@ -1099,5 +1101,27 @@ module forward_detection(
 
         else
             MEM_to_EX_forwardSignal = 2'b00;
+    end
+endmodule
+
+
+module freq_divider(
+    input SYS_clk,// SYS_reset,
+    output reg divided_clk
+);
+    parameter divisor = 250_000_000;
+    parameter m = divisor/2;
+    integer count;
+    
+    initial count = 0;
+    
+    always @(negedge SYS_clk)
+    begin
+        if (count >= m)
+        begin
+            count        <= 0;
+            divided_clk  <= ~divided_clk;
+        end
+        else count <= count + 1;
     end
 endmodule
