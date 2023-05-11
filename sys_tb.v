@@ -26,48 +26,17 @@ module sys_tb();
 
     reg [2:0]  SYS_output_sel; //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
     
-    // wire [7:0] F_PC;
-    wire [31:0] F_instruction, D_instruction, EX_instruction, MEM_instruction, WB_instruction;
-    // wire D_stall;
-    // wire [1:0] MEM_to_D_forwardSignal;
+    wire [26:0] SYS_leds;
 
-    wire        WB_RegWrite_signal;
-    wire [31:0] WB_write_data;
-    wire [4:0]  WB_write_register;
-    wire [2:0]  WB_exception_signal;
-    wire [10:0] EX_control_signal;
-    // wire [4:0] D_Reg_address1 = D_instruction[25:21], D_Reg_address2 = D_instruction[20:16];
-    // wire [31:0] D_REG_data_out1, D_REG_data_out2;
-    reg [31:0] testt_reg_add;
-    wire [31:0]testt_reg;
-
+   
     //test
-   system sy(
+   system #(.divisor(1))sy(
         //INPUT, giữ nguyên
-        .SYS_clk                (SYS_clk),
-        .SYS_reset              (SYS_reset),
-        .SYS_output_sel         (SYS_output_sel), //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
-        .testt_reg_add          (testt_reg_add),
+        .clk(SYS_clk),
+        .SYS_reset(SYS_reset),
+        .SYS_output_sel(SYS_output_sel), //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
+        .SYS_leds(SYS_leds)
 
-        //OUTPUT
-        // .PC (F_PC),
-        .F_instruction          (F_instruction),
-        .D_instruction          (D_instruction),
-        .EX_instruction         (EX_instruction),
-        .MEM_instruction        (MEM_instruction),
-        .WB_instruction         (WB_instruction),
-
-        // .D_stall                (D_stall),
-        .WB_RegWrite_signal     (WB_RegWrite_signal),
-        .WB_write_data          (WB_write_data),
-        .WB_write_register      (WB_write_register),
-        .WB_exception_signal    (WB_exception_signal),
-        .EX_control_signal      (EX_control_signal),
-        // .D_REG_data_out1        (D_REG_data_out1),
-        // .D_REG_data_out2        (D_REG_data_out2),
-        // .MEM_to_D_forwardSignal (MEM_to_D_forwardSignal),
-
-        .testt_reg              (testt_reg)
 
     );
     initial begin
@@ -78,9 +47,8 @@ module sys_tb();
     initial
         begin
              //ki?m tra gi? tr? thanh ghi s? 8
-            testt_reg_add = 8;
             SYS_reset = 0;
-            SYS_output_sel = 2;
+            SYS_output_sel = 0;
             #1 SYS_reset = 1;
             #2 SYS_reset = 0;
         end 

@@ -2,10 +2,10 @@
 ## To use it in a project:
 ## - uncomment the lines corresponding to used pins
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets SYS_clk]
+#set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets SYS_clk]
 
 # Clock Signal
-#set_property -dict { PACKAGE_PIN H16    IOSTANDARD LVCMOS33 } [get_ports { SYS_clk }]; #IO_L13P_T2_MRCC_35 Sch=SYSCLK
+set_property -dict { PACKAGE_PIN H16    IOSTANDARD LVCMOS33 } [get_ports { clk }]; #IO_L13P_T2_MRCC_35 Sch=SYSCLK
 #create_clock -add -name sys_clk_pin -period 100000 -waveform {0 4} [get_ports { SYS_clk }];#set
 
 ## Switches
@@ -27,7 +27,7 @@ set_property -dict { PACKAGE_PIN N16    IOSTANDARD LVCMOS33 } [get_ports { SYS_l
 set_property -dict { PACKAGE_PIN M14    IOSTANDARD LVCMOS33 } [get_ports { SYS_leds[24] }]; #IO_L23P_T3_35 Sch=LED3
 
 ## Buttons
-set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { SYS_clk }]; #IO_L4P_T0_35 Sch=BTN0
+#set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { SYS_clk }]; #IO_L4P_T0_35 Sch=BTN0
 set_property -dict { PACKAGE_PIN D20    IOSTANDARD LVCMOS33 } [get_ports { SYS_reset }]; #IO_L4N_T0_35 Sch=BTN1
 #set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports { btn[2] }]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
 #set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports { btn[3] }]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
@@ -120,12 +120,13 @@ set_property -dict { PACKAGE_PIN W8    IOSTANDARD LVCMOS33 } [get_ports { SYS_le
 #set_property -dict { PACKAGE_PIN Y8    IOSTANDARD LVCMOS33 } [get_ports { ck_io39 }]; #IO_L14N_T2_SRCC_13  Sch=CK_IO39
 #set_property -dict { PACKAGE_PIN W9    IOSTANDARD LVCMOS33 } [get_ports { ck_io40 }]; #IO_L16N_T2_13       Sch=CK_IO40
 #set_property -dict { PACKAGE_PIN Y9    IOSTANDARD LVCMOS33 } [get_ports { ck_io41 }]; #IO_L14P_T2_SRCC_13  Sch=CK_IO41
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[31]_i_3_n_0]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[29]_i_3_n_0]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/EX_Out_SignedExtended_reg[31]_8]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/D_instruction[31]_i_10_n_0]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_ALUresult_reg[12]
-]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[31]_i_3_n_0]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_instruction[29]_i_3_n_0]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/EX_Out_SignedExtended_reg[31]_8]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/D_instruction[31]_i_10_n_0]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/MEM_ALUresult_reg[12]]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets EX/alu1/EX_Out_SignedExtended_reg[31]_1]
+#set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets  EX/EX_status_out[2]]
 
 ## ChipKit Outer Analog Header - as Single-Ended Analog Inputs
 ## NOTE: These ports can be used as single-ended analog inputs with voltages from 0-3.3V (ChipKit analog pins A0-A5) or as digital I/O.

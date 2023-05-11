@@ -9,6 +9,27 @@
 // tràn số                  -> EXE ALU
 // chia cho 0               -> EXE ALU
 
+
+module freq_divider(
+    input SYS_clk,// SYS_reset,
+    output reg divided_clk
+);
+    parameter divisor = 250_000_000;
+    parameter m = divisor/2;
+    integer count;
+    
+    initial count = 0;
+    
+    always @(negedge SYS_clk)
+    begin
+        if (count >= m)
+        begin
+            count        <= 0;
+            divided_clk  <= ~divided_clk;
+        end
+        else count <= count + 1;
+    end
+endmodule
 module system(
     input   clk,
     input   SYS_reset,
@@ -21,12 +42,12 @@ module system(
     parameter divisor = 250_000_000;
     freq_divider #(.divisor(divisor))divide(clk, SYS_clk);
 
+
     wire [31:0] testt_reg_add = 8;
     wire [31:0] testt_reg;
 
     //---------------------------------------------------------------------
-    //chi de test
-    //khi chay that, sua tat ca thanh output; reg; xoa output di
+
     reg       SYS_load;
     reg [7:0]  SYS_pc_val;
     //FETCH stage OK
@@ -66,6 +87,7 @@ module system(
     wire [4:0]  MEM_write_register; //OK
     wire [31:0] MEM_instruction;    //OK; 
     wire [ 7:0] MEM_PC;
+
     wire [31:0] MEM_write_data;    // fortest
 
     //Write Back stage
@@ -74,6 +96,7 @@ module system(
     wire [31:0] WB_write_data;
     wire [31:0] WB_instruction;
     wire [ 7:0] WB_PC;
+
     wire [10:0] WB_control_signal; //for test; not used later
 
     //for exception
@@ -92,15 +115,18 @@ module system(
     //khối theo thầy yêu cầu
 
 
+    wire  [31:0] testt_reg_add = 8;
+
     assign CLK_led = SYS_clk;
 
     assign SYS_leds =   (SYS_reset)           ? 0                       :
-                        (SYS_output_sel == 0) ? F_instruction           :
-                        (SYS_output_sel == 1) ? EX_exception_signal     :
-                        (SYS_output_sel == 2) ? EX_instruction            :
-                        (SYS_output_sel == 3) ? D_instruction  :
-                        (SYS_output_sel == 4) ? MEM_instruction           :
-                        (SYS_output_sel == 5) ? WB_instruction:
+                        // (SYS_output_sel == 0) ? F_instruction           :
+                        (SYS_output_sel == 0) ? testt_reg               :
+                        (SYS_output_sel == 1) ? D_REG_data_out1         :
+                        (SYS_output_sel == 2) ? EX_ALUresult            :
+                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
+                        (SYS_output_sel == 4) ? MEM_read_data           :
+                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
                         (SYS_output_sel == 6) ? EX_alu_control          :
                         (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
     dependency_detection dependency_unit(
