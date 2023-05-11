@@ -50,7 +50,7 @@ module sys_tb();
             SYS_reset = 0;
             SYS_output_sel = 0;
             #1 SYS_reset = 1;
-            #2 SYS_reset = 0;
+            #11 SYS_reset = 0;
         end 
     initial #250 $finish;
 endmodule
