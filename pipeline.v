@@ -10,30 +10,23 @@
 // chia cho 0               -> EXE ALU
 
 module freq_divider(
-    input SYS_clk, SYS_reset,
+    input SYS_clk,// SYS_reset,
     output reg divided_clk
 );
     parameter divisor = 250_000_000;
     parameter m = divisor/2;
     integer count;
     
+    initial count = 0;
+    
     always @(negedge SYS_clk)
     begin
-        if (SYS_reset)
+        if (count >= m)
         begin
             count        <= 0;
-            divided_clk  <= 1;
+            divided_clk  <= ~divided_clk;
         end
-
-        else
-        begin
-            if (count >= m)
-            begin
-                count        <= 0;
-                divided_clk  <= ~divided_clk;
-            end
-            else count <= count + 1;
-        end
+        else count <= count + 1;
     end
 endmodule
 
@@ -48,7 +41,7 @@ module system(
 );
     wire SYS_clk;
     parameter divisor = 250_000_000;
-    freq_divider #(.divisor(divisor))divide(clk, SYS_reset, SYS_clk);
+    freq_divider #(.divisor(divisor))divide(clk, SYS_clk);
     //---------------------------------------------------------------------
     wire[31:0] testt_reg;
     //chi de test
