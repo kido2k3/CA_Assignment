@@ -23,7 +23,7 @@ module system(
     wire [7:0] PC;
 
     wire SYS_clk;
-    parameter divisor = 1;
+    parameter divisor = 125000000;
     freq_divider #(.divisor(divisor)) divider(   
         clk,
         SYS_clk
@@ -96,15 +96,15 @@ module system(
     //khối theo thầy yêu cầu
     assign CLK_led = SYS_clk;
 
-    assign SYS_leds =   (SYS_reset)           ? 0                       :
+    assign SYS_leds =   (SYS_reset)           ? 0                      :
                         (SYS_output_sel == 0) ? testt_reg           :
                         (SYS_output_sel == 1) ? EX_exception_signal     :
-                        (SYS_output_sel == 2) ? EX_instruction            :
+                        (SYS_output_sel == 2) ? EX_ALUresult            :
                         (SYS_output_sel == 3) ? D_instruction  :
                         (SYS_output_sel == 4) ? MEM_instruction           :
                         (SYS_output_sel == 5) ? WB_instruction:
-                        (SYS_output_sel == 6) ? EX_alu_control          :
-                        (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
+                        (SYS_output_sel == 6) ? PC          :
+                        (SYS_output_sel == 7) ? EPC               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
     dependency_detection dependency_unit(
         //INPUT
         .D_instruction  (D_instruction),
@@ -900,7 +900,6 @@ module forward_detection(
         MEM_to_D_forwardSignal = 2'b00; //prevent latch
         if (!MEM_instruction || !D_instruction) //nothing
             MEM_to_D_forwardSignal = 2'b00;
-
         else if (!MEM_instruction[31:26] || MEM_instruction[31:26] == 6'h1c)     //lenh trong MEM la lenh R)
         begin
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
@@ -909,7 +908,6 @@ module forward_detection(
                     MEM_to_D_forwardSignal[1] = 1'b1;
                 else
                     MEM_to_D_forwardSignal[1] = 1'b0;
-
                 if (MEM_instruction[15:11] == D_instruction[20:16]) //rd == rt
                     MEM_to_D_forwardSignal[0] = 1'b1;
                 else
