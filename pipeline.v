@@ -34,24 +34,27 @@ module system(
     input   clk,
     input   SYS_reset,
     input [2:0]  SYS_output_sel, //trong �'�? l�  7 bit nhưng chỉ cần 3 bit l�  �'ủ hiện thực
-    
+
     output CLK_led,
     output[26:0] SYS_leds
 );
-    wire SYS_clk;
-    parameter divisor = 250_000_000;
-    freq_divider #(.divisor(divisor))divide(clk, SYS_clk);
-
-
     wire [31:0] testt_reg_add = 8;
     wire [31:0] testt_reg;
+    wire [7:0] PC;
+
+    wire SYS_clk;
+    parameter divisor = 125000000;
+    freq_divider #(.divisor(divisor)) divider(   
+        clk,
+        SYS_clk
+    );
 
     //---------------------------------------------------------------------
-
+    //chi de test
+    //khi chay that, sua tat ca thanh output, reg, xoa output di
     reg       SYS_load;
     reg [7:0]  SYS_pc_val;
     //FETCH stage OK
-    wire [7:0] PC;
     wire [31:0] F_instruction;
 
     //DECODE stage
@@ -87,7 +90,6 @@ module system(
     wire [4:0]  MEM_write_register; //OK
     wire [31:0] MEM_instruction;    //OK; 
     wire [ 7:0] MEM_PC;
-
     wire [31:0] MEM_write_data;    // fortest
 
     //Write Back stage
@@ -96,7 +98,6 @@ module system(
     wire [31:0] WB_write_data;
     wire [31:0] WB_instruction;
     wire [ 7:0] WB_PC;
-
     wire [10:0] WB_control_signal; //for test; not used later
 
     //for exception
@@ -113,22 +114,17 @@ module system(
     //exception detection
     wire [2:0] D_exception_signal, MEM_exception_signal, WB_exception_signal, EX_exception_signal;
     //khối theo thầy yêu cầu
-
-
-    wire  [31:0] testt_reg_add = 8;
-
     assign CLK_led = SYS_clk;
 
-    assign SYS_leds =   (SYS_reset)           ? 0                       :
-                        // (SYS_output_sel == 0) ? F_instruction           :
-                        (SYS_output_sel == 0) ? testt_reg               :
-                        (SYS_output_sel == 1) ? D_REG_data_out1         :
+    assign SYS_leds =   (SYS_reset)           ? 0                      :
+                        (SYS_output_sel == 0) ? testt_reg           :
+                        (SYS_output_sel == 1) ? EX_exception_signal     :
                         (SYS_output_sel == 2) ? EX_ALUresult            :
-                        (SYS_output_sel == 3) ? {19'b0, EX_status_out}  :
-                        (SYS_output_sel == 4) ? MEM_read_data           :
-                        (SYS_output_sel == 5) ? {16'b0,D_control_signal}:
-                        (SYS_output_sel == 6) ? EX_alu_control          :
-                        (SYS_output_sel == 7) ? {PC, EPC}               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
+                        (SYS_output_sel == 3) ? D_instruction  :
+                        (SYS_output_sel == 4) ? MEM_instruction           :
+                        (SYS_output_sel == 5) ? WB_instruction:
+                        (SYS_output_sel == 6) ? PC          :
+                        (SYS_output_sel == 7) ? EPC               : {27{1'b0}}; //cần bổ sung trư�?ng hợp không có gì
     dependency_detection dependency_unit(
         //INPUT
         .D_instruction  (D_instruction),
@@ -924,7 +920,6 @@ module forward_detection(
         MEM_to_D_forwardSignal = 2'b00; //prevent latch
         if (!MEM_instruction || !D_instruction) //nothing
             MEM_to_D_forwardSignal = 2'b00;
-
         else if (!MEM_instruction[31:26] || MEM_instruction[31:26] == 6'h1c)     //lenh trong MEM la lenh R)
         begin
             if      (!D_instruction[31:26] || D_instruction[31:26] == 6'h1c || D_instruction[31:26] == 6'h4 || D_instruction[31:26] == 6'h5) //R, bne and beq
@@ -933,7 +928,6 @@ module forward_detection(
                     MEM_to_D_forwardSignal[1] = 1'b1;
                 else
                     MEM_to_D_forwardSignal[1] = 1'b0;
-
                 if (MEM_instruction[15:11] == D_instruction[20:16]) //rd == rt
                     MEM_to_D_forwardSignal[0] = 1'b1;
                 else
@@ -1113,8 +1107,12 @@ module freq_divider(
     parameter m = divisor/2;
     integer count;
     
-    initial count = 0;
-    
+    initial
+    begin
+        count = 0;
+        divided_clk = 0;
+    end
+
     always @(negedge SYS_clk)
     begin
         if (count >= m)
@@ -1125,3 +1123,6 @@ module freq_divider(
         else count <= count + 1;
     end
 endmodule
+
+
+    
